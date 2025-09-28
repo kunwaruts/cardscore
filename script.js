@@ -1,4 +1,13 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // --- Page Elements ---
+    const authModal = document.getElementById('authModal');
+    const usernameInput = document.getElementById('username');
+    const passwordInput = document.getElementById('password');
+    const signInBtn = document.getElementById('signInBtn');
+    const signUpBtn = document.getElementById('signUpBtn');
+    const authStatusMessage = document.getElementById('authStatusMessage');
+    const signupInstructions = document.getElementById('signupInstructions');
+
     const welcomePage = document.getElementById('welcome-page');
     const gamePage = document.getElementById('game-page');
     const numPlayersSelect = document.getElementById('numPlayers');
@@ -18,24 +27,139 @@ document.addEventListener('DOMContentLoaded', () => {
     const confirmYesBtn = document.getElementById('confirmYes');
     const confirmNoBtn = document.getElementById('confirmNo');
 
+    const logoutBtn = document.getElementById('logoutBtn');
+    const historyBtn = document.getElementById('historyBtn');
+
+    const signInPage = document.getElementById('signInPage');
+    const signUpPage = document.getElementById('signUpPage');
+    const goSignUpBtn = document.getElementById('goSignUp');
+    
+    const backToSignInBtn = document.getElementById('backToSignIn');
+
+    const signInForm = document.getElementById('signInForm');
+    const signUpForm = document.getElementById('signUpForm');
+
+    
+
+    // Show sign-in modal initially
+    authModal.style.display = 'flex';
+
+    // --- Auth Page Switching ---
+    goSignUpBtn.addEventListener('click', () => {
+        signInPage.classList.add('hidden');
+        signUpPage.classList.remove('hidden');
+    });
+
+    backToSignInBtn.addEventListener('click', () => {
+        signUpPage.classList.add('hidden');
+        signInPage.classList.remove('hidden');
+    });
+
+    // --- Sign-In / Sign-Up ---
+    signInForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        authModal.style.display = 'none';
+        welcomePage.classList.remove('hidden');
+    });
+
+    signUpForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        authModal.style.display = 'none';
+        welcomePage.classList.remove('hidden');
+    });
+
+    // --- Logout ---
+    logoutBtn.addEventListener('click', () => {
+        welcomePage.classList.add('hidden');
+        authModal.style.display = 'flex';
+        signUpPage.classList.add('hidden');
+        signInPage.classList.remove('hidden');
+    });
+
+
+    // Show sign-in modal on page load
+    authModal.style.display = 'flex';
+
+    // Transition to Sign-Up Page
+    goSignUpBtn.addEventListener('click', () => {
+        signInPage.classList.add('hidden');
+        signUpPage.classList.remove('hidden');
+    });
+
+    // Handle Sign-In form submission
+    document.getElementById('signInForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        authModal.style.display = 'none';
+        welcomePage.classList.remove('hidden');
+    });
+
+    // Handle Sign-Up form submission
+    document.getElementById('signUpForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        authModal.style.display = 'none';
+        welcomePage.classList.remove('hidden');
+    });
+
+    // Logout
+    logoutBtn.addEventListener('click', () => {
+        gamePage.classList.add('hidden');
+        authModal.style.display = 'flex';
+        signUpPage.classList.add('hidden');
+        signInPage.classList.remove('hidden');
+    });
+
+
+    let loggedInUser = null;
     let numPlayers = 0;
     let playerNames = [];
-    let scores = []; // Stores round scores as an array of arrays/objects
+    let scores = [];
     let roundNumber = 0;
 
-    // Helper function to clear and set error messages and styles
-    function handleInputError(inputElement, isValid, errorMessage) {
-        if (isValid) {
-            inputElement.classList.remove('input-error');
-            statusMessage.textContent = '';
-        } else {
-            inputElement.classList.add('input-error');
-            statusMessage.textContent = `⚠ ${errorMessage}`;
+    // --- Auth Logic ---
+    function showAuthModal() { authModal.classList.remove('hidden'); }
+    function hideAuthModal() { authModal.classList.add('hidden'); }
+
+    function login(user, pass) {
+        if (!user || !pass) {
+            authStatusMessage.textContent = '⚠ Enter valid username & password';
+            return;
         }
+        loggedInUser = user;
+        hideAuthModal();
+        welcomePage.classList.remove('hidden');
     }
 
-    // --- Welcome Page Logic ---
+    function signUp(user, pass) {
+        signupInstructions.classList.remove('hidden');
+        authStatusMessage.textContent = '';
+        if (!user || !pass) return;
+        loggedInUser = user;
+        hideAuthModal();
+        welcomePage.classList.remove('hidden');
+    }
 
+    signInBtn.addEventListener('click', () => {
+        signupInstructions.classList.add('hidden');
+        login(usernameInput.value.trim(), passwordInput.value.trim());
+    });
+
+    signUpBtn.addEventListener('click', () => {
+        signupInstructions.classList.remove('hidden');
+        signUp(usernameInput.value.trim(), passwordInput.value.trim());
+    });
+
+    logoutBtn.addEventListener('click', () => {
+        loggedInUser = null;
+        welcomePage.classList.add('hidden');
+        gamePage.classList.add('hidden');
+        showAuthModal();
+    });
+
+    historyBtn.addEventListener('click', () => {
+        alert('History feature will be added later.');
+    });
+
+    // --- Welcome Page Logic ---
     numPlayersSelect.addEventListener('change', (e) => {
         numPlayers = parseInt(e.target.value);
         playerNamesContainer.innerHTML = '';
@@ -62,11 +186,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const nameInputs = playerNamesContainer.querySelectorAll('input[type="text"]');
         playerNames = Array.from(nameInputs).map(input => input.value.trim());
 
-        // Clear previous errors
         welcomeStatusMessage.textContent = '';
         nameInputs.forEach(input => input.classList.remove('input-error'));
 
-        // Check for duplicate names (case-insensitive)
         const lowercaseNames = playerNames.map(name => name.toLowerCase());
         const uniqueNames = new Set(lowercaseNames);
         if (uniqueNames.size !== playerNames.length) {
@@ -80,29 +202,27 @@ document.addEventListener('DOMContentLoaded', () => {
                 nameInputs[i].classList.add('input-error');
                 return;
             }
-                if (!/^[a-zA-Z\s]*$/.test(playerNames[i])) {
+            if (!/^[a-zA-Z\s]*$/.test(playerNames[i])) {
                 welcomeStatusMessage.textContent = '⚠ Names can only contain alphabets and spaces.';
                 nameInputs[i].classList.add('input-error');
                 return;
             }
         }
-        
-        // Clear and reset game state
+
         scores = [];
         roundNumber = 0;
         scoreTableBody.innerHTML = '';
         statusMessage.textContent = '';
-        
+
         updateTableHeader();
         updateTotals();
-        
+
         welcomePage.classList.add('hidden');
         gamePage.classList.remove('hidden');
-        
-        // Automatically add the first round
+
         addRound();
     });
-    
+
     resetBtn.addEventListener('click', () => {
         numPlayersSelect.value = '';
         playerNamesContainer.innerHTML = '';
@@ -112,12 +232,11 @@ document.addEventListener('DOMContentLoaded', () => {
         roundNumber = 0;
     });
 
-    // --- Game Page Logic ---
-
+    // --- Game Logic ---
     window.addEventListener('beforeunload', (e) => {
         if (!gamePage.classList.contains('hidden')) {
             e.preventDefault();
-            e.returnValue = ''; // Retain for safety, though standard behavior is limited in modern browsers
+            e.returnValue = '';
         }
     });
 
@@ -128,48 +247,24 @@ document.addEventListener('DOMContentLoaded', () => {
         tableHeader.appendChild(roundHeader);
         playerNames.forEach(name => {
             const th = document.createElement('th');
-            // Shortened header text for mobile responsiveness
             th.textContent = name; 
             tableHeader.appendChild(th);
         });
     }
 
     function calculateScore(bid, score) {
-        // Ensure inputs are numeric before calculating
         bid = parseInt(bid);
         score = parseInt(score);
-        
         if (isNaN(bid) || isNaN(score)) return 0;
-        
         const minBid = numPlayers === 3 ? 3 : 2;
-
-        if (bid < minBid || bid > 13 || score > 13) {
-            return null; // Invalid bid/score outside rules
-        }
-        
-        // Rule 1: Double the bid or more penalty (2x penalty takes precedence)
-        if (score >= 2 * bid && bid > 0) {
-            return -10 * bid;
-        }
-
-        // Rule 2: High bid bonus
+        if (bid < minBid || bid > 13 || score > 13) return null;
+        if (score >= 2 * bid && bid > 0) return -10 * bid;
         if ((numPlayers === 3 && bid >= 7) || (numPlayers === 4 && bid >= 6)) {
-            if (score >= bid) {
-                return bid * 20; // Made high bid
-            } else {
-                return -10 * bid; // Missed high bid
-            }
+            return score >= bid ? bid * 20 : -10 * bid;
         }
-
-        // Rule 3: Normal bid rules (missed, made, or over)
-        if (score < bid) {
-            return -10 * bid; // Missed bid
-        } else if (score === bid) {
-            return bid * 10; // Made bid exactly
-        } else { // score > bid (Overtricks)
-            const bonusPoints = score - bid;
-            return (bid * 10) + bonusPoints;
-        }
+        if (score < bid) return -10 * bid;
+        if (score === bid) return bid * 10;
+        return (bid * 10) + (score - bid);
     }
 
     function updateTotals() {
@@ -177,23 +272,32 @@ document.addEventListener('DOMContentLoaded', () => {
         const totalTextCell = document.createElement('td');
         totalTextCell.textContent = 'Total';
         totalRow.appendChild(totalTextCell);
-        
+
         const playerTotals = Array(numPlayers).fill(0);
 
         scores.forEach(round => {
-            // Iterate through the round's score objects
             round.forEach((playerScoreObject, index) => {
-                    if (playerScoreObject && typeof playerScoreObject.finalScore === 'number' && !isNaN(playerScoreObject.finalScore)) {
-                        playerTotals[index] += playerScoreObject.finalScore;
+                if (playerScoreObject && typeof playerScoreObject.finalScore === 'number' && !isNaN(playerScoreObject.finalScore)) {
+                    playerTotals[index] += playerScoreObject.finalScore;
                 }
             });
         });
-        
+
         playerTotals.forEach(total => {
             const totalCell = document.createElement('td');
             totalCell.textContent = total;
             totalRow.appendChild(totalCell);
         });
+    }
+
+    function handleInputError(inputElement, isValid, errorMessage = '') {
+        if (isValid) {
+            inputElement.classList.remove('input-error');
+            statusMessage.textContent = '';
+        } else {
+            inputElement.classList.add('input-error');
+            statusMessage.textContent = `⚠ ${errorMessage}`;
+        }
     }
 
     function validateRound(row) {
@@ -203,11 +307,9 @@ document.addEventListener('DOMContentLoaded', () => {
         let isValid = true;
         const minBid = numPlayers === 3 ? 3 : 2;
 
-        // 1. Check all fields are filled and valid
         for (let i = 0; i < numPlayers; i++) {
             const bidValue = parseInt(bidInputs[i].value);
             const scoreValue = parseInt(scoreInputs[i].value);
-
             bidInputs[i].classList.remove('input-error');
             scoreInputs[i].classList.remove('input-error');
 
@@ -226,21 +328,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 handleInputError(scoreInputs[i], false, `A score must be between 0 and 13.`);
                 isValid = false;
             }
-            
+
             if (isValid && bidInputs[i].value.trim() !== '' && scoreInputs[i].value.trim() !== '') {
-                    totalScore += scoreValue;
+                totalScore += scoreValue;
             }
         }
-        
-        if (!isValid) return false;
 
-        // 2. Check the total score
+        if (!isValid) return false;
         if (totalScore !== 13) {
             statusMessage.textContent = `⚠ The total tricks won in Round ${roundNumber} is ${totalScore}. It must equal 13.`;
             scoreInputs.forEach(input => input.classList.add('input-error'));
             return false;
         }
-        
+
         statusMessage.textContent = ''; 
         return true;
     }
@@ -248,20 +348,16 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateScore(e) {
         const playerCell = e.target.closest('td');
         const row = e.target.closest('tr');
-        
         const bidInput = playerCell.querySelector('input[placeholder="Bid"]');
         const scoreInput = playerCell.querySelector('input[placeholder="Score"]');
-        
         const bid = parseInt(bidInput.value);
         const score = parseInt(scoreInput.value);
-        
         const finalScoreSpan = playerCell.querySelector('span');
         const minBid = numPlayers === 3 ? 3 : 2;
 
-        // Detailed validation to show temporary errors
         let isBidValid = !isNaN(bid) && bid >= minBid && bid <= 13;
         let isScoreValid = !isNaN(score) && score >= 0 && score <= 13;
-        
+
         if (e.target.placeholder === 'Bid' && !isBidValid && bidInput.value.trim() !== '') {
             handleInputError(e.target, false, `A bid must be between ${minBid} and 13.`);
         } else if (e.target.placeholder === 'Score' && !isScoreValid && scoreInput.value.trim() !== '') {
@@ -270,24 +366,20 @@ document.addEventListener('DOMContentLoaded', () => {
             handleInputError(e.target, true);
         }
 
-        // Calculate and display score
         const calculatedScore = calculateScore(bidInput.value, scoreInput.value);
         finalScoreSpan.textContent = `Score: ${calculatedScore}`;
 
-        // Update the state array
         let roundScores = scores[row.rowIndex - 1];
         const playerIndex = Array.from(row.querySelectorAll('td')).slice(1).indexOf(e.target.closest('td'));
 
-        // Use the input values to save the final object to scores array
         roundScores[playerIndex] = {
             bid: isBidValid ? bid : null,
             score: isScoreValid ? score : null,
             finalScore: calculatedScore
         };
-        
+
         updateTotals();
 
-        // Check if all fields in the current row are filled to enable 'Add Round' button
         const inputs = Array.from(row.querySelectorAll('input'));
         const allFilled = inputs.every(input => input.value !== '');
         addRowBtn.disabled = !allFilled;
@@ -295,104 +387,73 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function addRound() {
         const lastRow = scoreTableBody.lastElementChild;
-
-        // 1. Validate the previous round before adding a new one
         if (lastRow) {
             const inputs = Array.from(lastRow.querySelectorAll('input'));
             const isRoundIncomplete = inputs.some(input => input.value.trim() === '');
-            
             if (isRoundIncomplete) {
                 statusMessage.textContent = `⚠ Round ${roundNumber} is incomplete. Fill all bid/score fields.`;
                 return;
             }
-            if (!validateRound(lastRow)) {
-                return;
-            }
-            
-            // If validation passes, complete the round and disable inputs
+            if (!validateRound(lastRow)) return;
+
             lastRow.classList.add('round-completed');
             Array.from(lastRow.querySelectorAll('input')).forEach(input => input.disabled = true);
         }
 
-        // 2. Check max rounds
         if (roundNumber >= 13) {
             statusMessage.textContent = '⚠ Maximum of 13 rounds reached. Game finished.';
             addRowBtn.disabled = true;
             return;
         }
-        
-        // 3. Add new round
+
         roundNumber++;
         const newRow = document.createElement('tr');
-        
         const roundCell = document.createElement('td');
         roundCell.textContent = roundNumber;
         newRow.appendChild(roundCell);
-        
+
         for (let i = 0; i < numPlayers; i++) {
             const playerCell = document.createElement('td');
             const cellWrapper = document.createElement('div');
             cellWrapper.classList.add('flex', 'flex-col', 'items-center', 'justify-center', 'gap-2', 'px-1');
-            
+
             const bidInput = document.createElement('input');
             bidInput.type = 'text';
             bidInput.placeholder = 'Bid';
             bidInput.classList.add('input-score');
             bidInput.addEventListener('input', updateScore);
             bidInput.addEventListener('blur', updateScore);
-            bidInput.addEventListener('keypress', (e) => {
-                // Allow only numbers
-                if (isNaN(e.key) || e.key === ' ' || e.key === '.') e.preventDefault();
-            });
-            
+            bidInput.addEventListener('keypress', (e) => { if (isNaN(e.key) || e.key === ' ' || e.key === '.') e.preventDefault(); });
+
             const scoreInput = document.createElement('input');
             scoreInput.type = 'text';
             scoreInput.placeholder = 'Score';
             scoreInput.classList.add('input-score');
             scoreInput.addEventListener('input', updateScore);
             scoreInput.addEventListener('blur', updateScore);
-            scoreInput.addEventListener('keypress', (e) => {
-                // Allow only numbers
-                if (isNaN(e.key) || e.key === ' ' || e.key === '.') e.preventDefault();
-            });
-            
+            scoreInput.addEventListener('keypress', (e) => { if (isNaN(e.key) || e.key === ' ' || e.key === '.') e.preventDefault(); });
+
             const finalScoreSpan = document.createElement('span');
             finalScoreSpan.classList.add('font-bold', 'text-xs');
             finalScoreSpan.textContent = 'Score: 0';
-            
+
             cellWrapper.appendChild(bidInput);
             cellWrapper.appendChild(scoreInput);
             cellWrapper.appendChild(finalScoreSpan);
             playerCell.appendChild(cellWrapper);
             newRow.appendChild(playerCell);
         }
-        
+
         scoreTableBody.appendChild(newRow);
         addRowBtn.disabled = true;
-
-        // Initialize a new array for the new round score objects
         scores[roundNumber - 1] = Array(numPlayers).fill(null); 
     }
 
-    // --- Modal and Page Navigation Logic ---
-    backBtn.addEventListener('click', () => {
-        confirmationModal.classList.remove('hidden');
-    });
-    
-    confirmYesBtn.addEventListener('click', () => {
-        confirmationModal.classList.add('hidden');
-        welcomePage.classList.remove('hidden');
-        gamePage.classList.add('hidden');
-        resetBtn.click(); // Reset all game state
-        addRowBtn.disabled = true;
-    });
-
-    confirmNoBtn.addEventListener('click', () => {
-        confirmationModal.classList.add('hidden');
-    });
-
+    backBtn.addEventListener('click', () => confirmationModal.classList.remove('hidden'));
+    confirmYesBtn.addEventListener('click', () => { confirmationModal.classList.add('hidden'); welcomePage.classList.remove('hidden'); gamePage.classList.add('hidden'); resetBtn.click(); addRowBtn.disabled = true; });
+    confirmNoBtn.addEventListener('click', () => confirmationModal.classList.add('hidden'));
     addRowBtn.addEventListener('click', addRound);
 
-    // Initial state
-    addRowBtn.disabled = true;
+    // --- Initialize ---
+    showAuthModal();
 });
