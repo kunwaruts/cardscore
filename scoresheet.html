@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Score Sheet</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="app" role="application">
+<div class="overlay" aria-hidden></div>
+<div class="content">
+<header>
+<div>
+<h1>Game Room</h1>
+<div id="playersList" class="sub"></div>
+</div>
+<div class="controls">
+<button id="addRound" class="btn-primary">Add Round</button>
+<button id="removeRound" class="btn-ghost">Remove Last</button>
+<a href="index.html" class="btn-ghost">Back</a>
+</div>
+</header>
+
+
+<div class="panel">
+<div class="scoreboard">
+<table id="scoreTable">
+<thead>
+<tr id="tableHead"></tr>
+</thead>
+<tbody id="tableBody"></tbody>
+</table>
+</div>
+<footer>
+<div class="totals" id="totals"></div>
+<div class="muted">Rounds: <span id="roundCount">0</span> / 13</div>
+</footer>
+</div>
+</div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

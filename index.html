@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Card Game Login</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- Background Overlay -->
+  <div class="bg-overlay"></div>
+
+  <!-- Auth Container -->
+  <div id="auth-page" class="container-card">
+    <h1 class="text-4xl font-bold text-center mb-6">Card Game Score Calculator</h1>
+    <p class="text-center text-lg mb-4">Login or create a new account to begin</p>
+
+    <!-- Toggle Buttons -->
+    <div class="flex flex-col md:flex-row justify-center gap-4 mb-6">
+      <button id="showLoginBtn" class="btn btn-primary w-full md:w-auto">Login</button>
+      <button id="showSignupBtn" class="btn btn-secondary w-full md:w-auto">Sign Up</button>
+    </div>
+
+    <!-- Login Form -->
+    <div id="loginForm" class="hidden">
+      <input type="text" id="loginUsername" placeholder="Username" class="form-input mb-2" />
+      <input type="password" id="loginPassword" placeholder="Password" class="form-input mb-2" />
+      <button id="loginBtn" class="btn btn-primary w-full">Login</button>
+    </div>
+
+    <!-- Signup Form -->
+    <div id="signupForm" class="hidden">
+      <input type="text" id="signupUsername" placeholder="Choose a Username" class="form-input mb-2" />
+      <input type="password" id="signupPassword" placeholder="Choose a Password" class="form-input mb-2" />
+      <button id="signupBtn" class="btn btn-secondary w-full">Sign Up</button>
+    </div>
+
+    <!-- Status Message -->
+    <div id="authStatusMessage" class="error-message text-center mt-4"></div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
