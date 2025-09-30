@@ -4,40 +4,45 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Card Game Score Calculator</title>
-    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="bg-overlay"></div>
-
-    <!-- Welcome / Setup Page -->
-    <div id="welcome-page" class="container-card hidden">
-        <h1 class="text-4xl font-bold text-center mb-6">Card Game Score Calculator</h1>
-        <p class="text-center text-lg mb-8">Welcome! Let's get started by setting up the game.</p>
+    <div id="persistentHeader" class="header-bar hidden">
+    
+        <h3 id="topWelcomeMessage" style="margin: 0;"></h3> 
         
-        <div class="flex flex-col md:flex-row items-center justify-center gap-4 mb-8">
-            <label for="numPlayers" class="text-lg">Number of Players:</label>
-            <select id="numPlayers" class="form-input w-full md:w-auto">
+        <div class="button-group">
+            <button id="historyBtn" class="btn btn-link" disabled>History</button>
+            <button id="logoutBtn" class="btn btn-link">Logout</button>
+        </div>
+    </div>
+    <div id="welcome-page" class="container-card hidden">
+        <h3 class="auth-subtitle" style="margin-top: 0.75rem; margin-bottom: 1.5rem;">
+            Let's get started by setting up the game.
+        </h3>
+        
+        <div class="player-count-select-group">
+            <label for="numPlayers" class="label-text">Number of Players:</label>
+            <select id="numPlayers" class="form-input">
                 <option value="" disabled selected>Select players</option>
                 <option value="3">3 Players</option>
                 <option value="4">4 Players</option>
             </select>
         </div>
 
-        <div id="playerNamesContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8"></div>
+        <div id="playerNamesContainer" class="player-names-grid"></div>
 
-        <div class="flex flex-col sm:flex-row justify-center gap-4">
-            <button id="playBtn" class="btn btn-primary w-full sm:w-auto" disabled>Proceed to Play</button>
-            <button id="resetBtn" class="btn btn-secondary w-full sm:w-auto">Reset</button>
+        <div class="button-group">
+            <button id="playBtn" class="btn btn-primary" disabled>Proceed to Play</button>
+            <button id="resetBtn" class="btn btn-secondary">Reset</button>
         </div>
-        <div id="welcomeStatusMessage" class="error-message text-center mt-4"></div>
     </div>
 
-    <!-- Game Page -->
     <div id="game-page" class="container-card hidden">
         <h1 class="text-4xl font-bold text-center mb-6">Score Sheet</h1>
         <div class="table-container mb-6">
-            <table class="w-full text-sm sm:text-base">
+            <table>
                 <thead>
                     <tr id="tableHeader" class="table-header"></tr>
                 </thead>
@@ -48,53 +53,56 @@
             </table>
         </div>
         
-        <div class="flex flex-col sm:flex-row justify-center gap-4 mb-4">
-            <button id="addRowBtn" class="btn btn-primary w-full sm:w-auto" disabled>Add Round</button>
-            <button id="historyBtn" class="btn btn-secondary w-full sm:w-auto">History</button>
+        <div class="button-group">
+            <button id="addRowBtn" class="btn btn-primary" disabled>Add Round</button>
+            <button id="historyBtn" class="btn btn-secondary">History</button>
         </div>
 
-        <div class="flex justify-center">
-            <button id="logoutBtn" class="btn btn-secondary w-full sm:w-auto max-w-xs">Logout</button>
+        <div class="logout-container">
+            <button id="logoutBtn" class="btn btn-secondary">Logout</button>
         </div>
 
-        <div id="statusMessage" class="error-message text-center mt-4"></div>
+        <div id="statusMessage" class="error-message-global"></div>
     </div>
 
-    <!-- Sign In / Sign Up Modal -->
-    <div id="authModal" class="modal-overlay">
-        <div class="modal-content container-card relative">
-            <!-- Sign-In Page -->
+    <div id="authModal" class="modal-overlay visible">
+        <div class="modal-content container-card">
+            
             <div id="signInPage">
-                <h2 class="text-2xl font-bold mb-6 text-center text-white">Hey, Let's go in ❤️</h2>
-                <form id="signInForm" class="flex flex-col gap-4">
-                    <div class="floating-input relative">
-                        <input type="text" id="signInUsername" placeholder=" " required class="form-input">
+                <h2 class="auth-title">Hey, Let's go in ❤️</h2>
+                <form id="signInForm" novalidate>
+                    <div class="input-group">
                         <label for="signInUsername">Username</label>
+                        <input type="text" id="signInUsername" placeholder="Enter username" class="form-input">
+                        <div class="input-error-message hidden"></div>
                     </div>
-                    <div class="floating-input relative">
-                        <input type="date" id="signInDOB" placeholder=" " required class="form-input">
+                    <div class="input-group">
                         <label for="signInDOB">Date of Birth</label>
+                        <input type="date" id="signInDOB" class="form-input">
+                        <div class="input-error-message hidden"></div>
                     </div>
-                    <button type="submit" class="btn btn-primary w-full">Let's Play</button>
+                    <button type="submit" class="btn btn-primary full-width">Let's Play</button>
                 </form>
-                <button id="goSignUp" class="text-white underline mt-2 text-center">Hey, New here? Let's Start</button>
+                <button type="button" id="goSignUp" class="link-button">Hey, New here? Let's Start</button>
             </div>
 
-            <!-- Sign-Up Page -->
             <div id="signUpPage" class="hidden">
-                <h2 class="text-2xl font-bold mb-1 text-center text-white">Welcome, let's go in</h2>
-                <p class="italic text-sm text-gray-300 mb-4 text-center">Please enter the below details to start</p>
-                <form id="signUpForm" class="flex flex-col gap-4">
-                    <div class="floating-input relative">
-                        <input type="text" id="signUpUsername" placeholder=" " required class="form-input">
+                <h2 class="auth-title">Welcome, let's go in</h2>
+                <p class="auth-subtitle">Please enter the below details to start</p>
+                <form id="signUpForm" novalidate>
+                    <div class="input-group">
                         <label for="signUpUsername">Username</label>
+                        <input type="text" id="signUpUsername" placeholder="Enter username" class="form-input">
+                        <div class="input-error-message hidden"></div>
                     </div>
-                    <div class="floating-input relative">
-                        <input type="date" id="signUpDOB" placeholder=" " required class="form-input">
+                    <div class="input-group">
                         <label for="signUpDOB">Date of Birth</label>
+                        <input type="date" id="signUpDOB" class="form-input">
+                        <div class="input-error-message hidden"></div>
                     </div>
-                    <div class="floating-input relative">
-                        <select id="signup-security-question" class="form-input peer" required>
+                    <div class="input-group">
+                        <label for="signup-security-question">Secret Question</label>
+                        <select id="signup-security-question" class="form-input">
                             <option value="" disabled selected>Select a security question</option>
                             <option value="pet">What was the name of your first pet?</option>
                             <option value="school">What was the name of your elementary school?</option>
@@ -103,24 +111,24 @@
                             <option value="teacher">What was the last name of your favorite teacher?</option>
                             <option value="movie">What is your favorite movie?</option>
                         </select>
-                        <label for="signup-security-question">Secret Question</label>
+                        <div class="input-error-message hidden"></div>
                     </div>
-                    <div class="floating-input relative">
-                        <input type="text" id="signup-security-answer" class="form-input peer" placeholder=" " required />
+                    <div class="input-group">
                         <label for="signup-security-answer">Answer</label>
+                        <input type="text" id="signup-security-answer" class="form-input" placeholder="Enter your answer" />
+                        <div class="input-error-message hidden"></div>
                     </div>
 
-                    <button type="submit" class="btn btn-primary w-full">All Set</button>
-                    <button type="button" id="backToSignIn" class="btn btn-secondary w-full">Back</button>
+                    <button type="submit" class="btn btn-primary full-width">All Set</button>
+                    <button type="button" id="backToSignIn" class="btn btn-secondary full-width">Back</button>
                 </form>
             </div>
         </div>
     </div>
 
-    <!-- Script files -->
-     <script src="scripts/validation.js"></script>
-     <script src="scripts/auth.js"></script>
-     <script src="scripts/game.js"></script>
+    <script type="module" src="scripts/validation.js"></script>
+     <script type="module" src="scripts/auth.js"></script>
+     <script type="module" src="scripts/game.js"></script> 
     
 </body>
 </html>

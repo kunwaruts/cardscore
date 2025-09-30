@@ -1,7 +1,7 @@
 /* Google Font */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
 
-/* Global Body */
+/* Global Reset & Base */
 body {
     font-family: 'Inter', sans-serif;
     background-image: url('https://placehold.co/1920x1080/000000/FFFFFF/png?text=Game+Background');
@@ -13,6 +13,13 @@ body {
     justify-content: center;
     align-items: center;
     flex-direction: column;
+    margin: 0;
+    padding: 0;
+}
+
+/* Visibility Control */
+.hidden {
+    display: none !important; /* CRITICAL: Ensures it's actually hidden */
 }
 
 /* Overlay */
@@ -35,78 +42,111 @@ body {
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
     z-index: 1;
     width: 95%;
-    max-width: 800px;
-    padding: 1.5rem;
-    margin: 1.5rem auto;
+    max-width: 400px; /* Reduced max width for sign-in/up */
+    padding: 2rem;
+    margin: 1rem auto;
     color: white;
     border: 1px solid rgba(255, 255, 255, 0.2);
     box-sizing: border-box;
-    overflow-y: auto;
+    
 }
 
-/* Form Input */
+/* --- Form Layout and Inputs --- */
+.auth-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    text-align: center;
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+.auth-subtitle {
+    font-style: italic;
+    font-size: 0.875rem;
+    color: #ccc;
+    text-align: center;
+    margin-top: 0;
+    margin-bottom: 1rem;
+}
+
+#signInForm, #signUpForm {
+    display: flex; 
+    flex-direction: column;
+    gap: 1.25rem; /* Space between input groups */
+    margin-bottom: 1.5rem;
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem; 
+    text-align: left;
+}
+
+.input-group label {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #ccc;
+    padding-left: 0.25rem;
+}
+
 .form-input {
-    background-color: rgb(255, 255, 255);
+     background-color: rgb(255, 255, 255);
     border: 1px solid rgba(255, 255, 255, 0.3);
     color: rgb(0, 0, 0);
     border-radius: 0.5rem;
-    padding: 0.5rem 0.75rem;
+    padding: 0.75rem 0.75rem; 
     transition: all 0.2s;
     text-align: center;
+    width: 100%;
+    box-sizing: border-box;
+    font-weight: 700;
 }
 
 .form-input:focus {
     outline: none;
-    background-color: rgb(255, 255, 255);
+    box-shadow: 0 0 0 2px rgba(255, 0, 0, 0.5);
 }
 
 .form-input::placeholder {
-    color: rgba(0, 0, 0, 0.74);
+    color: rgba(0, 0, 0, 0.5);
+    font-style: italic;
 }
 
-/* Floating Labels */
-.floating-input {
-    position: relative;
-    display: flex;
-    flex-direction: column-reverse;
-    margin-bottom: 0.5rem;
+/* --- Validation Styling --- */
+.input-group.error .form-input {
+    border-color: #ff0000;
+    border-width: 2px;
 }
 
-.floating-input input:focus + label,
-.floating-input input:not(:placeholder-shown) + label,
-.floating-input select:focus + label,
-.floating-input select:not([value=""]) + label {
-    transform: translateY(-1.5rem);
-    font-size: 0.8rem;
-    color: #ffffff;
+.input-error-message {
+    /* Initially hidden by JS/Tailwind if present */
+    color: #ff0000;
+    font-size: 0.85rem;
+    display: flex; 
+    align-items: center;
+    gap: 0.25rem;
+    margin-top: 0.25rem;
+    padding-left: 0.25rem;
 }
 
-.floating-input label {
-    position: absolute;
-    left: 0.4rem;
-    top: 0.4rem;
-    pointer-events: none;
-    transition: all 0.2s ease;
-    color: #ccc;
-}
-
-/* Buttons */
+/* --- Buttons --- */
 .btn {
     padding: 0.75rem 1.5rem;
     border-radius: 0.75rem;
     font-weight: 600;
     transition: all 0.2s;
+    cursor: pointer;
+    border: none;
 }
 
 .btn-primary {
     background-color: #ff0000;
     color: white;
-    box-shadow: 0 4px 6px -1px rgb(255 0 0 / 0.1), 0 2px 4px -2px rgb(255 0 0 / 0.1);
 }
 
 .btn-primary:hover:not(:disabled) {
     background-color: #cc0000;
-    transform: translateY(-2px);
 }
 
 .btn-secondary {
@@ -117,93 +157,27 @@ body {
 
 .btn-secondary:hover:not(:disabled) {
     background-color: rgba(255, 255, 255, 0.2);
-    transform: translateY(-2px);
 }
 
-.btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    transform: none;
-}
-
-.btn-modal-cancel {
-    background-color: #2d3748;
-    color: white;
-    padding: 0.75rem 1.5rem;
-    border-radius: 0.75rem;
-    font-weight: 600;
-    transition: all 0.2s;
-}
-
-.btn-modal-cancel:hover {
-    background-color: #1a202c;
-    transform: translateY(-2px);
-}
-
-/* Input Score for Table */
-.input-score {
-    width: 45px;
-    padding: 0.25rem;
-    text-align: center;
-    border-radius: 0.375rem;
-    background-color: white;
-    color: #1a202c;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    font-size: 0.7rem;
-    transition: border-color 0.2s;
-}
-
-.input-score:focus {
-    outline: none;
-    background-color: #f7fafc;
-}
-
-/* Table Styling */
-.table-container {
+.full-width {
     width: 100%;
+    box-sizing: border-box;
 }
 
-table {
-    width: 100%;
-    border-collapse: separate;
-    border-spacing: 0.5rem;
-    table-layout: fixed;
-}
-
-th, td {
-    padding: 0.5rem 0.1rem;
-    text-align: center;
-    background-color: transparent;
-    border-radius: 0.5rem;
-}
-
-th {
-    background-color: rgba(255, 255, 255, 0.15);
-    font-weight: 700;
-}
-
-tr.total-row td {
-    background-color: rgba(255, 255, 255, 0.2);
-    font-weight: 700;
-}
-
-.table-header {
-    border-radius: 0.5rem;
-    overflow: hidden;
-}
-
-/* Round Completed Styling */
-.round-completed {
-    background-color: rgba(255, 255, 255, 0.05);
-    pointer-events: none;
-}
-
-.round-completed input {
-    background-color: rgba(255, 255, 255, 0.05);
+.link-button {
+    background: none;
+    border: none;
     color: white;
+    text-decoration: underline;
+    cursor: pointer;
+    display: block;
+    margin: 0.5rem auto 0;
+    text-align: center;
+    font-size: 0.9rem;
+    font-weight: 700; 
 }
 
-/* Modal Styling */
+/* --- Modal Overlay & Game/Welcome Page Positioning (Remaining styles) --- */
 .modal-overlay {
     position: fixed;
     top: 0;
@@ -217,24 +191,117 @@ tr.total-row td {
     z-index: 10;
 }
 
-.modal-content {
-    background-color: rgba(255,255,255,0.2) !important;
-    backdrop-filter: blur(10px);
-    border-radius: 1rem;
-    padding: 2rem;
-    max-width: 400px;
+/* Add missing styles for game/welcome page (assuming max-width) */
+#welcome-page, #game-page {
+    max-width: 800px;
+}
+
+.player-count-select-group {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.player-names-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.button-group {
+     display: flex;
+    align-items: center; /* Ensures buttons align with each other */
+    gap: 20px; 
+    padding-right: 1rem;
+}
+
+.logout-container {
     text-align: center;
+    max-width: 250px;
+    margin: 0 auto;
+}
+
+/* Table Styling (simplified) */
+table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0.5rem;
+}
+th, td {
+    padding: 0.5rem 0.1rem;
+    text-align: center;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 0.5rem;
+}
+.total-row td {
+    background-color: rgba(255, 255, 255, 0.3);
+    font-weight: 700;
+}
+/* 1. Fix Positioning, Visibility, and Layering for the Header */
+.header-bar {
+    position: fixed; 
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 50px;
+    z-index: 1000; 
+    
+    background-color: #212121;
+    color: white;  
+    display: flex;
+    justify-content: space-between; 
+    
+    /* CRITICAL: This is the rule that *should* be doing the work */
+    align-items: center; 
+    
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.header-bar .button-group {
+    /* Ensures the group of buttons is centered vertically (inherited from header-bar) 
+       and handles spacing between the buttons */
+    display: flex;
+    /* FIX: Added a gap for visual spacing between buttons */
+    gap: 15px; 
+}
+
+/* 2. Fix Text Color for the Greeting */
+#topWelcomeMessage {
+    /* Ensure the text color is white/light against the dark header background */
     color: white;
-}
-
-/* Error Messages */
-.error-message {
-    color: #ff0000;
+    font-size: 1.1em;
     font-weight: 500;
+    padding-left: 1rem;
+    /* GUARANTEED FIX: Remove default top/bottom margins from the h3 element. 
+       This allows align-items: center on the parent to take control. */
+    margin-top: 0;
+    margin-bottom: 0;
+    
+    /* Ensure the text height is well defined */
+    line-height: 1.2; 
 }
 
-/* Input Error */
-.input-error {
-    border-color: #ff0000;
-    border-width: 2px;
+/* 3. Style the History/Logout Buttons as "links" or "tabs" */
+.header-bar .btn-link {
+    background: none;
+    border: none;
+    color: white; 
+    cursor: pointer;
+    font-size: 1em;
+    
+    /* Add underline for clickable identification */
+    text-decoration: underline; 
+    
+    /* Ensure padding is minimal but centered vertically */
+    padding: 5px 0; 
+    
+    transition: color 0.2s;
+}
+
+.header-bar .btn-link:hover {
+    color: #bdbdbd; /* Lighten text slightly on hover for feedback */
+    background-color: transparent;
 }
