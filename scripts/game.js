@@ -1,7 +1,17 @@
-import { displayError, clearError, clearAllFormErrors } from './validation.js';
+import { displayError, clearError } from './validation.js';
+
+// Global function defined in scoresheet.js to start the game session
+let startGameSession;
 
 document.addEventListener('DOMContentLoaded', () => {
-    // --- DOM Element Definitions ---
+    // Attempt to hook the external function
+    if (typeof window.startGameSession !== 'function') {
+        console.error("Initialization error: scoresheet.js failed to load or define startGameSession.");
+        // Non-fatal error, but game won't start
+    }
+    startGameSession = window.startGameSession;
+
+    // --- DOM Element Definitions (Setup Page Only) ---
     const welcomePage = document.getElementById('welcome-page');
     const gamePage = document.getElementById('game-page');
     const numPlayersSelect = document.getElementById('numPlayers');
@@ -9,87 +19,63 @@ document.addEventListener('DOMContentLoaded', () => {
     const playBtn = document.getElementById('playBtn');
     const resetBtn = document.getElementById('resetBtn');
     
-    // Header elements
-    const persistentHeader = document.getElementById('persistentHeader');
-    const logoutBtn = document.getElementById('logoutBtn');
-
-    // Elements for status/errors
-    const setupErrorStatus = document.getElementById('setupErrorStatus');
+    // Global Error Status (dynamically created and placed by the change listener)
+    let setupErrorStatus = null; 
     
-    // Game page elements
-    const tableHeader = document.getElementById('tableHeader');
-    const scoreTableBody = document.getElementById('scoreTableBody');
-    const totalRow = document.getElementById('totalRow');
-    const addRowBtn = document.getElementById('addRowBtn');
-    
-    // --- State Variables ---
-    let numPlayers = 0;
-    let playerNames = [];
-    let scores = [];
-    let roundNumber = 0;
+    // --- Validation Constants ---
+    const MIN_LENGTH = 3;
+    const MAX_LENGTH = 15;
+    const NAME_REGEX = /^[a-zA-Z\s\.]*$/; 
 
     // ==========================================================
-    // 1. CRITICAL HELPER FUNCTION: Check Player Inputs Validity
-    // (This now handles the final required/uniqueness check on click)
+    // 1. Player Input Validation 
     // ==========================================================
-    const checkPlayerInputsValidity = (isFinalCheck = false) => {
+    const checkPlayerInputsValidity = () => {
         const nameInputs = playerNamesContainer.querySelectorAll('input[type="text"]');
-        let allValid = true; // Tracks required fields and valid characters
-        let names = []; // Stores trimmed, lowercase, valid names
-        let hasInlineError = false; // Tracks if any field is actively showing an inline error
-
-        if (setupErrorStatus) {
+        let allIndividualFieldsValid = true;
+        let names = [];
+        
+        // --- Phase 0: Initial Cleanup ---
+        if (setupErrorStatus) { 
              setupErrorStatus.classList.add('hidden');
              setupErrorStatus.textContent = '';
         }
+        nameInputs.forEach(input => clearError(input)); 
 
-        // --- 1. Per-Field Status Check and Name Collection ---
+        // --- Phase 1: Per-Field Validation ---
         nameInputs.forEach(input => {
             const name = input.value.trim();
+            let fieldError = false;
             
-            // Check for existing inline character errors
-            const errorElement = input.closest('.input-group')?.querySelector('.input-error-message');
-            if (errorElement && !errorElement.classList.contains('hidden') && errorElement.textContent.length > 0) {
-                 hasInlineError = true;
-            }
-
-            // FIX 1 & 2: If this is the final check (on button click) OR if the field is currently invalid...
-            if (isFinalCheck || hasInlineError || name === '') {
-                
-                // Final Required Check (Blank fields)
-                if (name === '') {
-                    allValid = false;
-                    // FIX 2: Explicitly call displayError for ALL blank fields on the final check
-                    if (isFinalCheck) {
-                        displayError(input, 'Player name is required.');
-                    }
-                } 
-                
-                // Character Check (If not blank, but characters are wrong)
-                else if (!/^[a-zA-Z\s]+$/.test(name)) {
-                     allValid = false;
-                     // Error should already be displayed by the 'input' listener, but confirm logic here
-                }
-            }
+            if (name === '') {
+                displayError(input, 'Player name is required.');
+                fieldError = true;
+            } else if (!NAME_REGEX.test(name)) {
+                displayError(input, 'Only letters, spaces, and periods are allowed.');
+                fieldError = true;
+            } else if (name.length < MIN_LENGTH) {
+                displayError(input, `Name must be at least ${MIN_LENGTH} characters.`);
+                fieldError = true;
+            } else if (name.length > MAX_LENGTH) {
+                displayError(input, `Name cannot exceed ${MAX_LENGTH} characters.`);
+                fieldError = true;
+            } 
             
-            if (name !== '' && !hasInlineError) {
+            if (fieldError) {
+                allIndividualFieldsValid = false;
+            } else {
                 names.push(name.toLowerCase());
             }
         });
         
-        // Disable button if any field has a live inline character error or fails final validity
-        if (!allValid || hasInlineError) {
-            playBtn.disabled = true;
+        if (!allIndividualFieldsValid) {
             return false;
         }
 
-        // --- 2. Global Validation (Uniqueness Check) ---
-        // FIX 3: Uniqueness check MUST be done here, and only if all names are present and valid
+        // --- Phase 2: Global Uniqueness Check ---
         const uniqueNames = new Set(names);
         
         if (uniqueNames.size !== names.length) {
-             playBtn.disabled = true;
-
              if (setupErrorStatus) {
                  setupErrorStatus.textContent = '⚠ Player names must be unique (case-insensitive).';
                  setupErrorStatus.classList.remove('hidden');
@@ -97,23 +83,34 @@ document.addEventListener('DOMContentLoaded', () => {
              return false;
         }
         
-        // --- 3. Final State ---
         if (setupErrorStatus) setupErrorStatus.classList.add('hidden');
-        playBtn.disabled = false;
         return true;
     };
 
     // ==========================================================
-    // 2. Player Count Selection Listener (Input Generation)
+    // 2. Setup Page Listeners 
     // ==========================================================
+
     numPlayersSelect.addEventListener('change', (e) => {
-        numPlayers = parseInt(e.target.value);
+        const numPlayers = parseInt(e.target.value);
         playerNamesContainer.innerHTML = '';
         
-        if (setupErrorStatus) {
-             setupErrorStatus.classList.add('hidden');
+        // Dynamic error status creation (for placement right after container)
+        const existingStatus = document.getElementById('setupErrorStatus');
+        if (existingStatus) existingStatus.remove(); 
+        
+        setupErrorStatus = document.createElement('div');
+        setupErrorStatus.id = 'setupErrorStatus';
+        setupErrorStatus.classList.add('input-error-message', 'hidden'); 
+        setupErrorStatus.style.marginTop = '10px';
+        setupErrorStatus.style.marginBottom = '10px';
+        
+        if (playerNamesContainer.parentNode) {
+            // Place it after the container, before the button group
+            playerNamesContainer.insertAdjacentElement('afterend', setupErrorStatus);
         }
-
+        setupErrorStatus.classList.add('hidden');
+        
         if (numPlayers) {
             for (let i = 0; i < numPlayers; i++) {
                 const container = document.createElement('div');
@@ -121,178 +118,81 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 const label = document.createElement('label');
                 label.textContent = `Player ${i + 1} Name:`;
-                label.setAttribute('for', `player-name-${i}`);
-                
                 const input = document.createElement('input');
                 input.type = 'text';
                 input.id = `player-name-${i}`; 
                 input.placeholder = `Player ${i + 1} Name`;
                 input.classList.add('form-input');
                 
-                // Add the static error element
                 const errorDiv = document.createElement('div');
                 errorDiv.classList.add('input-error-message');
                 errorDiv.classList.add('hidden');
                 
-                // --- Inline Validation Listeners ---
-                
-                // Listener for Character/Empty and Post-Action Error Clearing
                 input.addEventListener('input', (e) => {
+                    clearError(input);
                     const value = e.target.value;
-                    
-                    // 1. Post-Action: Clear any previous error
-                    clearError(input);
-
-                    // 2. Character Validation (Live feedback)
-                    if (value !== '' && !/^[a-zA-Z\s]*$/.test(value)) {
-                        displayError(input, 'Only letters and spaces are allowed.');
-                        e.target.value = value.replace(/[^a-zA-Z\s]/g, '');
+                    if (!NAME_REGEX.test(value)) {
+                        displayError(input, 'Only letters, spaces, and periods are allowed.');
+                        e.target.value = value.replace(/[^a-zA-Z\s\.]/g, ''); 
                     }
-                    
-                    // 3. Run the main validity check to update button status
-                    checkPlayerInputsValidity();
                 });
-                
-                // Listener for Blur/Focus Out
+
                 input.addEventListener('blur', () => {
-                    // Clear error on blur to allow the final click check to re-validate cleanly
+                    const trimmedValue = input.value.trim();
                     clearError(input);
-                    
-                    // Update button status
-                    checkPlayerInputsValidity();
+                    if (trimmedValue === '') {
+                        displayError(input, 'Player name is required.');
+                    } else if (trimmedValue.length < MIN_LENGTH) {
+                        displayError(input, `Name must be at least ${MIN_LENGTH} characters.`);
+                    }
                 });
                 
-                // --- DOM Appending ---
                 container.appendChild(label);
                 container.appendChild(input);
-                container.appendChild(errorDiv); // Append the static error container
+                container.appendChild(errorDiv);
                 playerNamesContainer.appendChild(container);
             }
             
-            checkPlayerInputsValidity();
+            playBtn.disabled = false;
         } else {
             playBtn.disabled = true;
         }
     });
 
-    // ==========================================================
-    // 3. Play Button Click Logic
-    // ==========================================================
-    playBtn.addEventListener('click', () => {
-        // FIX 1: Run final check (required for uniqueness and required fields)
-        if (!checkPlayerInputsValidity(true)) {
+    // START GAME - Transition point to scoresheet.js
+    playBtn.addEventListener('click', (e) => {
+        e.preventDefault(); 
+        
+        if (!checkPlayerInputsValidity()) {
             return;
         }
         
+        if (!startGameSession) {
+            console.error("Game session initializer not available. Check scoresheet.js load order.");
+            return;
+        }
+
         const nameInputs = playerNamesContainer.querySelectorAll('input[type="text"]');
-        playerNames = Array.from(nameInputs).map(input => input.value.trim());
+        const playerNames = Array.from(nameInputs).map(input => input.value.trim());
 
-        scores = [];
-        roundNumber = 0;
-        scoreTableBody.innerHTML = '';
-        updateTableHeader();
-        updateTotals();
-
+        // --- Transition UI ---
         welcomePage.classList.add('hidden');
         gamePage.classList.remove('hidden');
+        document.getElementById('persistentHeader').classList.remove('hidden');
 
-        addRound();
+        // CALL THE EXTERNAL FUNCTION to initialize the scoresheet
+        startGameSession(playerNames);
     });
-
-    // ... (rest of the functions: resetBtn, logoutBtn, updateTableHeader, updateTotals, addRound, signInPageReset)
     
+    // WELCOME PAGE RESET
     resetBtn.addEventListener('click', () => {
         numPlayersSelect.value = '';
         playerNamesContainer.innerHTML = '';
         playBtn.disabled = true;
         
         if (setupErrorStatus) {
-             setupErrorStatus.classList.add('hidden');
-             setupErrorStatus.textContent = '';
+             setupErrorStatus.remove();
+             setupErrorStatus = null;
         }
-        scores = [];
-        roundNumber = 0;
     });
-
-    logoutBtn.addEventListener('click', () => {
-        gamePage.classList.add('hidden');
-        welcomePage.classList.add('hidden');
-        
-        if (persistentHeader) persistentHeader.classList.add('hidden');
-        
-        const authModal = document.getElementById('authModal');
-        if (authModal) {
-            authModal.classList.remove('hidden'); 
-            authModal.style.display = 'flex'; 
-        }
-
-        const signInPage = document.getElementById('signInPage');
-        const signUpPage = document.getElementById('signUpPage');
-        if (signInPage) signInPage.classList.remove('hidden');
-        if (signUpPage) signUpPage.classList.add('hidden');
-
-        signInPageReset();
-    });
-
-    function updateTableHeader() {
-        tableHeader.innerHTML = '<th>Round</th>';
-        playerNames.forEach(name => {
-            tableHeader.innerHTML += `<th>${name}</th>`;
-        });
-    }
-
-    function updateTotals() {
-        totalRow.innerHTML = '<td>Total</td>';
-        playerNames.forEach((_, idx) => {
-            let sum = scores.reduce((acc, round) => acc + (round[idx] || 0), 0);
-            totalRow.innerHTML += `<td>${sum}</td>`;
-        });
-    }
-
-    function addRound() {
-        roundNumber++;
-        const row = document.createElement('tr');
-        row.innerHTML = `<td>${roundNumber}</td>`;
-        const roundScores = [];
-        for (let i = 0; i < numPlayers; i++) {
-            const td = document.createElement('td');
-            const input = document.createElement('input');
-            input.type = 'number';
-            input.value = 0;
-            input.classList.add('form-input');
-            input.addEventListener('input', (e) => {
-                const val = parseInt(e.target.value) || 0;
-                roundScores[i] = val;
-                scores[roundNumber - 1] = [...roundScores];
-                updateTotals();
-            });
-            td.appendChild(input);
-            row.appendChild(td);
-            roundScores.push(0);
-        }
-        scores.push(roundScores);
-        scoreTableBody.appendChild(row);
-        addRowBtn.disabled = false;
-        row.querySelector('input[type="number"]').focus();
-    }
-    
-    addRowBtn.addEventListener('click', addRound);
-
-    function signInPageReset() {
-        const signInForm = document.getElementById('signInForm');
-        if (!signInForm) return; 
-
-        signInForm.reset();
-        
-        const inputs = signInForm.querySelectorAll('.form-input');
-        inputs.forEach(input => {
-             input.classList.remove('error'); 
-        });
-        
-        const errorContainers = document.querySelectorAll('.input-error-message');
-        errorContainers.forEach(err => {
-             err.textContent = '';
-             err.classList.add('hidden');
-        });
-    }
 });

@@ -2,306 +2,586 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
 
 /* Global Reset & Base */
+:root {
+  --header-height: 50px; /* Define header height */
+}
+
 body {
-    font-family: 'Inter', sans-serif;
-    background-image: url('https://placehold.co/1920x1080/000000/FFFFFF/png?text=Game+Background');
-    background-size: cover;
-    background-position: center;
-    background-attachment: fixed;
-    min-height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    margin: 0;
-    padding: 0;
+ font-family: 'Inter', sans-serif;
+ background-image: url('https://placehold.co/1920x1080/000000/FFFFFF/png?text=Game+Background');
+ background-size: cover;
+ background-position: center;
+ background-attachment: fixed;
+ min-height: 100vh;
+ margin: 0;
+ padding-top: var(--header-height); /* CRUCIAL: Added padding to prevent content hiding under fixed header */
 }
 
 /* Visibility Control */
 .hidden {
-    display: none !important; /* CRITICAL: Ensures it's actually hidden */
+ display: none !important; /* CRITICAL: Ensures it's actually hidden */
 }
 
 /* Overlay */
 .bg-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.8);
-    backdrop-filter: blur(2px);
-    z-index: 0;
+ position: fixed;
+ top: 0;
+ left: 0;
+ width: 100%;
+ height: 100%;
+ background-color: rgba(0, 0, 0, 0.8);
+ backdrop-filter: blur(2px);
+ z-index: 0;
 }
 
-/* Card Container */
+/* Card Container - Base for Welcome/Auth Modals */
 .container-card {
-    background-color: rgb(5 5 5 / 20%);
-    backdrop-filter: blur(10px);
-    border-radius: 1rem;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
-    z-index: 1;
-    width: 95%;
-    max-width: 400px; /* Reduced max width for sign-in/up */
-    padding: 2rem;
-    margin: 1rem auto;
-    color: white;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    box-sizing: border-box;
-    
+ background-color: rgb(5 5 5 / 20%);
+ backdrop-filter: blur(10px);
+ border-radius: 1rem;
+ box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
+ z-index: 1;
+ width: 95%;
+ max-width: 500px; /* Standard card size retained for non-game views */
+ padding: 2rem;
+ margin: 1rem auto;
+ color: white;
+ border: 1px solid rgba(255, 255, 255, 0.2);
+ box-sizing: border-box;
 }
 
 /* --- Form Layout and Inputs --- */
 .auth-title {
-    font-size: 1.5rem;
-    font-weight: 700;
-    text-align: center;
-    margin-top: 0;
-    margin-bottom: 0;
+ font-size: 1.5rem;
+ font-weight: 700;
+ text-align: center;
+ margin-top: 0;
+ margin-bottom: 0;
 }
 
 .auth-subtitle {
-    font-style: italic;
-    font-size: 0.875rem;
-    color: #ccc;
-    text-align: center;
-    margin-top: 0;
-    margin-bottom: 1rem;
+ font-style: italic;
+ font-size: 0.875rem;
+ color: #ccc;
+ text-align: center;
+ margin-top: 0;
+ margin-bottom: 1rem;
 }
 
 #signInForm, #signUpForm {
-    display: flex; 
-    flex-direction: column;
-    gap: 1.25rem; /* Space between input groups */
-    margin-bottom: 1.5rem;
+ display: flex; 
+ flex-direction: column;
+ gap: 1.25rem; /* Space between input groups */
+ margin-bottom: 1.5rem;
 }
 
 .input-group {
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem; 
-    text-align: left;
+ display: flex;
+ flex-direction: column;
+ gap: 0.25rem; 
+ text-align: left;
 }
 
 .input-group label {
-    font-size: 0.9rem;
-    font-weight: 500;
-    color: #ccc;
-    padding-left: 0.25rem;
+ font-size: 0.9rem;
+ font-weight: 500;
+ color: #ccc;
+ padding-left: 0.25rem;
 }
 
 .form-input {
-     background-color: rgb(255, 255, 255);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    color: rgb(0, 0, 0);
-    border-radius: 0.5rem;
-    padding: 0.75rem 0.75rem; 
-    transition: all 0.2s;
-    text-align: center;
-    width: 100%;
-    box-sizing: border-box;
-    font-weight: 700;
+ background-color: rgb(255, 255, 255);
+ border: 1px solid rgba(255, 255, 255, 0.3);
+ color: rgb(0, 0, 0);
+ border-radius: 0.5rem;
+ padding: 0.75rem 0.75rem; 
+ transition: all 0.2s;
+ text-align: center;
+ width: 100%;
+ box-sizing: border-box;
+ font-weight: 700;
 }
 
 .form-input:focus {
-    outline: none;
-    box-shadow: 0 0 0 2px rgba(255, 0, 0, 0.5);
+ outline: none;
+ box-shadow: 0 0 0 2px rgba(255, 0, 0, 0.5);
 }
 
 .form-input::placeholder {
-    color: rgba(0, 0, 0, 0.5);
-    font-style: italic;
+ color: rgba(0, 0, 0, 0.5);
+ font-style: italic;
 }
 
 /* --- Validation Styling --- */
 .input-group.error .form-input {
-    border-color: #ff0000;
-    border-width: 2px;
+ border-color: #ff0000;
+ border-width: 2px;
 }
 
 .input-error-message {
-    /* Initially hidden by JS/Tailwind if present */
-    color: #ff0000;
-    font-size: 0.85rem;
-    display: flex; 
-    align-items: center;
-    gap: 0.25rem;
-    margin-top: 0.25rem;
-    padding-left: 0.25rem;
+ color: #ff0000;
+ font-size: 0.85rem;
+ display: flex; 
+ align-items: center;
+ gap: 0.25rem;
+ margin-top: 0.25rem;
+ padding-left: 0.25rem;
 }
 
 /* --- Buttons --- */
 .btn {
-    padding: 0.75rem 1.5rem;
-    border-radius: 0.75rem;
-    font-weight: 600;
-    transition: all 0.2s;
-    cursor: pointer;
-    border: none;
+ padding: 0.75rem 1.5rem;
+ border-radius: 0.75rem;
+ font-weight: 600;
+ transition: all 0.2s;
+ cursor: pointer;
+ border: none;
 }
 
 .btn-primary {
-    background-color: #ff0000;
-    color: white;
+ background-color: #ff0000;
+ color: white;
 }
 
 .btn-primary:hover:not(:disabled) {
-    background-color: #cc0000;
+ background-color: #cc0000;
 }
 
 .btn-secondary {
-    background-color: rgba(255, 255, 255, 0.1);
-    color: white;
-    border: 1px solid rgba(255, 255, 255, 0.3);
+ background-color: rgba(255, 255, 255, 0.1);
+ color: white;
+ border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 .btn-secondary:hover:not(:disabled) {
-    background-color: rgba(255, 255, 255, 0.2);
+ background-color: rgba(255, 255, 255, 0.2);
 }
 
 .full-width {
-    width: 100%;
-    box-sizing: border-box;
+ width: 100%;
+ box-sizing: border-box;
 }
 
 .link-button {
-    background: none;
-    border: none;
-    color: white;
-    text-decoration: underline;
-    cursor: pointer;
-    display: block;
-    margin: 0.5rem auto 0;
-    text-align: center;
-    font-size: 0.9rem;
-    font-weight: 700; 
+ background: none;
+ border: none;
+ color: white;
+ text-decoration: underline;
+ cursor: pointer;
+ display: block;
+ margin: 0.5rem auto 0;
+ text-align: center;
+ font-size: 0.9rem;
+ font-weight: 700; 
 }
 
-/* --- Modal Overlay & Game/Welcome Page Positioning (Remaining styles) --- */
+/* --- Modal Overlay & Game/Welcome Page Positioning --- */
 .modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0,0,0,0.7);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 10;
+ position: fixed;
+ top: 0;
+ left: 0;
+ width: 100%;
+ height: 100%;
+ background-color: rgba(0,0,0,0.7);
+ display: flex;
+ justify-content: center;
+ align-items: center;
+ z-index: 10;
 }
 
-/* Add missing styles for game/welcome page (assuming max-width) */
-#welcome-page, #game-page {
-    max-width: 800px;
+/* GAME PAGE MAXIMIZATION (To prevent table overflow) */
+#game-page {
+ width: 98%;
+ max-width: 1200px; /* Increased max width significantly */
+ margin: 20px auto;
+ /* Ensure game page container also uses the card styling */
+ background-color: rgb(5 5 5 / 20%);
+ backdrop-filter: blur(10px);
+ border-radius: 1rem;
+ box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
+ z-index: 1;
+ padding: 2rem;
+ color: white;
+ border: 1px solid rgba(255, 255, 255, 0.2);
+ box-sizing: border-box;
 }
 
+#game-page h3{
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+/* Player Setup Grid */
 .player-count-select-group {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 1rem;
-    margin-bottom: 1.5rem;
+ display: flex;
+ justify-content: center;
+ align-items: center;
+ gap: 1rem;
+ margin-bottom: 1.5rem;
 }
 
 .player-names-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1rem;
-    margin-bottom: 1.5rem;
+ display: grid;
+ grid-template-columns: 1fr 1fr;
+ gap: 1rem;
+ margin-bottom: 1.5rem;
 }
 
+/* Base (Desktop) Button Group: Horizontal */
 .button-group {
-     display: flex;
-    align-items: center; /* Ensures buttons align with each other */
-    gap: 20px; 
-    padding-right: 1rem;
+ display: flex;
+ align-items: center; 
+ gap: 20px; 
+ padding-right: 1rem;
+  flex-wrap: wrap; /* Important for preventing overflow on medium screens */
+  justify-content: flex-end; /* Pushes buttons to the right, common for action groups */
 }
 
 .logout-container {
-    text-align: center;
-    max-width: 250px;
-    margin: 0 auto;
+ text-align: center;
+ max-width: 250px;
+ margin: 0 auto;
 }
 
-/* Table Styling (simplified) */
+/* ========================================================== */
+/* SCORE SHEET TABLE STYLES - FIXES APPLIED HERE */
+/* ========================================================== */
+
+/* The .table-responsive wrapper added in HTML will be targeted in media queries */
+.table-responsive {
+  /* Base: Allow overflow if needed, although table is sized for desktop here */
+  overflow-x: auto; 
+  width: 100%;
+}
+
+.table-container {
+ width: 100%;
+ padding-top: 10px;
+}
+
 table {
-    width: 100%;
-    border-collapse: separate;
-    border-spacing: 0.5rem;
+ width: 100%;
+ border-collapse: separate;
+ border-spacing: 0.1rem;
+ min-width: 500px; /* 👈 RESTORED: Reduced table min-width for better use of space */
+ table-layout: fixed; 
 }
-th, td {
-    padding: 0.5rem 0.1rem;
-    text-align: center;
-    background-color: rgba(255, 255, 255, 0.1);
-    border-radius: 0.5rem;
+
+/* Table Header - Made Black */
+thead th {
+ background-color: #000000; 
+ color: white;
+ padding: 8px 5px;
+ font-size: 0.9rem;
+ border-radius: 6px 6px 0 0;
 }
-.total-row td {
-    background-color: rgba(255, 255, 255, 0.3);
-    font-weight: 700;
+
+/* Table Body Cells */
+tbody td, tbody th {
+ background-color: rgba(255, 255, 255, 0.1);
+ color: white;
+ text-align: center;
+ font-size: 0.9rem;
+ border-radius: 4px;
+  padding: 8px 5px; /* Default padding for desktop/large screens */
 }
-/* 1. Fix Positioning, Visibility, and Layering for the Header */
+
+/* Round Number Column (Fixed size) */
+.round-number-cell {
+ width: 80px; 
+ min-width: 80px;
+ max-width: 80px;
+ font-weight: 700;
+ padding: 8px 5px !important;
+}
+
+/* Player/Score Cell */
+.score-cell {
+ padding: 0;
+ min-width: 60px; /* 👈 RESTORED: Reduced min-width for cells */
+ max-width: 100px; /* 👈 RESTORED: Reduced max-width for cells */
+ vertical-align: top;
+ height: 75px; /* Slightly reduced height for better row flow */
+ background-color: rgba(255, 255, 255, 0.1);
+ border-radius: 4px;
+}
+
+/* Micro Input Group - Changed to Row Layout (Label to the left of the box) */
+.input-group-micro {
+ display: flex;
+ flex-direction: column; /* CRITICAL: Changes layout to side-by-side */
+ justify-content: center; 
+ align-items: flex-start; 
+ padding: 3px 6px; /* Added internal padding for spacing */
+ border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+ height: 35px; /* Fixed height */
+}
+
+.input-group-micro:last-child {
+ border-bottom: none;
+}
+
+/* Micro Label - Increased font size, positioned left */
+.micro-label {
+ font-size: 0.8rem; /* Increased font size */
+ font-weight: 500;
+ color: #ccc;
+ margin-bottom: 0; 
+ padding-left: 2px;
+}
+
+/* 3. Generic Edit Box Styling (Bid/Score Inputs) */
+.score-input-box {
+    /* HIDE NUMBER INPUT SPINNERS (WORKS FOR input type="number" TOO) */
+    /* WebKit (Chrome, Safari, Edge) */
+    &::-webkit-outer-spin-button,
+    &::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+    /* Firefox */
+    -moz-appearance: textfield;
+    /* End Spinner Hide */
+
+    /* Existing shared styles */
+  width: 45px; /* Half width (compared to max column size) */
+  height: 28px; /* Increased height */
+  text-align: center;
+  padding: 2px 5px; /* Padding for height control */
+  font-size: 0.85rem;
+  border: 1px solid #d1d5db;
+  border-radius: 8px; /* Rounded border */
+  color: black;
+  font-weight: 700;
+  box-sizing: border-box;
+}
+
+.score-input-box:focus {
+ border-color: #ff0000;
+ outline: none;
+}
+
+
+/* Numeric Inputs - Styling for inputs inside score-cell */
+/* Kept for backward compatibility, though the class structure might be redundant now */
+.score-cell input[type="text"] {
+    /* HIDE NUMBER INPUT SPINNERS (Applied here too, just in case a text type is used) */
+    /* WebKit (Chrome, Safari, Edge) */
+    &::-webkit-outer-spin-button,
+    &::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+    /* Firefox */
+    -moz-appearance: textfield;
+    /* End Spinner Hide */
+    
+   width: 45px; /* Adjusted to fit the label next to it */
+   height: 28px; /* Increased height */
+   text-align: center;
+   padding: 0 5px;
+   font-size: 0.85rem;
+   border: 1px solid #d1d5db;
+   border-radius: 8px; /* More rounded border */
+   color: black;
+   font-weight: 700;
+   box-sizing: border-box;
+   flex-shrink: 1; /* Allows input to take remaining space */
+}
+
+.score-cell input[type="text"]:focus {
+ border-color: #ff0000;
+ outline: none;
+}
+
+
+/* Final Score display section */
+.final-score-section {
+ display: flex;
+ justify-content: center;
+ align-items: baseline;
+ padding: 5px 3px;
+ background-color: rgba(0, 0, 0, 0.2); 
+ border-radius: 0 0 4px 4px; 
+ font-size: 0.9rem;
+}
+
+/* Final Score Value - Base style. Requires JS to apply coloring classes. */
+.final-score-value {
+ font-weight: 700;
+ color: white; 
+ margin-left: 3px;
+ transition: color 0.3s;
+}
+
+/* Final Score Coloring Classes (To be applied by JavaScript) */
+.positive-score {
+ color: #48bb78; /* Dark Green, readable on dark background */
+ font-weight: 700;
+}
+
+.negative-score {
+ color: #e53e3e; /* Standard Red */
+ font-weight: 900; /* Bold */
+}
+
+
+/* Total Row Styling */
+#totalRow td {
+ background-color: #212121;
+ font-weight: 700;
+ font-size: 1rem;
+ padding: 8px 5px;
+ color: #ffcc00; /* Gold/Yellow for totals */
+ border-radius: 4px;
+}
+#totalRow td:first-child {
+ color: white;
+}
+
+
+/* --- Persistent Header Bar FIX (Position fixed for all screens) --- */
 .header-bar {
-    position: fixed; 
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 50px;
-    z-index: 1000; 
-    
-    background-color: #212121;
-    color: white;  
-    display: flex;
-    justify-content: space-between; 
-    
-    /* CRITICAL: This is the rule that *should* be doing the work */
-    align-items: center; 
-    
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+ position: fixed; /* CHANGED from sticky to fixed for persistence across all views */
+ top: 0;
+ left: 0;
+ width: 100%;
+ height: var(--header-height); /* Using defined variable */
+ z-index: 1000; 
+ 
+ background-color: #212121;
+ color: white; 
+ display: flex;
+ justify-content: space-between; 
+ align-items: center; 
+  padding: 0 1rem; /* Added horizontal padding */
+ box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .header-bar .button-group {
-    /* Ensures the group of buttons is centered vertically (inherited from header-bar) 
-       and handles spacing between the buttons */
-    display: flex;
-    /* FIX: Added a gap for visual spacing between buttons */
-    gap: 15px; 
+  /* Header button group remains horizontal at all times (Default: flex) */
+ display: flex;
+ gap: 15px; 
+ flex-direction: row;
+ padding-right: 2rem; /* 👈 USER CHANGE MAINTAINED */
 }
 
-/* 2. Fix Text Color for the Greeting */
 #topWelcomeMessage {
-    /* Ensure the text color is white/light against the dark header background */
-    color: white;
-    font-size: 1.1em;
-    font-weight: 500;
-    padding-left: 1rem;
-    /* GUARANTEED FIX: Remove default top/bottom margins from the h3 element. 
-       This allows align-items: center on the parent to take control. */
-    margin-top: 0;
-    margin-bottom: 0;
-    
-    /* Ensure the text height is well defined */
-    line-height: 1.2; 
+ color: white;
+ font-size: 1.1em;
+ font-weight: 500;
+ padding-left: 0; /* Adjusted padding since it's now controlled by parent .header-bar */
+ margin: 0;
+ line-height: 1.2; 
 }
 
-/* 3. Style the History/Logout Buttons as "links" or "tabs" */
 .header-bar .btn-link {
-    background: none;
-    border: none;
-    color: white; 
-    cursor: pointer;
-    font-size: 1em;
-    
-    /* Add underline for clickable identification */
-    text-decoration: underline; 
-    
-    /* Ensure padding is minimal but centered vertically */
-    padding: 5px 0; 
-    
-    transition: color 0.2s;
+ background: none;
+ border: none;
+ color: white; 
+ cursor: pointer;
+ font-size: 1em;
+ text-decoration: underline; 
+ padding: 5px 0; 
+ transition: color 0.2s;
 }
 
 .header-bar .btn-link:hover {
-    color: #bdbdbd; /* Lighten text slightly on hover for feedback */
-    background-color: transparent;
+ color: #bdbdbd;
+ background-color: transparent;
+}
+
+
+/* ========================================================== */
+/* ----------------- 2. TABLET/MID-SIZE STYLING ----------------- */
+/* Screens between 600px and 840px (inclusive) */
+/* Buttons remain horizontal, table padding shrinks. */
+/* ========================================================== */
+
+@media (min-width: 600px) and (max-width: 840px) {
+  /* 1. Table Padding Reduction */
+  tbody td, tbody th {
+    padding: 5px 6px; /* Reduced padding */
+    font-size: 0.85rem;
+  }
+  
+  /* 2. Button Group Adjustment (Keep Horizontal but less gap) */
+  .button-group:not(.header-bar .button-group) { /* Target page-level buttons ONLY */
+    gap: 10px; 
+    padding-right: 0.5rem;
+  }
+  
+  .btn {
+    padding: 0.6rem 1rem; /* Slightly smaller button padding */
+    font-size: 0.9rem;
+  }
+}
+
+
+/* ========================================================== */
+/* ----------------- 3. MOBILE STYLING ----------------- */
+/* Screens smaller than 600px (max-width: 599px) */
+/* Table min-width: 300px, padding shrinks more, page buttons stack vertically. */
+/* ========================================================== */
+
+@media (max-width: 599px) {
+
+  /* 1. Card Layout for Mobile */
+  .container-card {
+    padding: 1rem; /* Smaller padding on the card itself */
+    margin: 10px auto;
+  }
+
+  /* 2. Table Fixes (min-width 300px) */
+  .table-responsive {
+    /* Ensures horizontal scrolling on small screens */
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch; 
+    width: 100%; 
+  }
+
+  table {
+    min-width: 300px; /* REQUIRED MINIMUM WIDTH */
+    width: auto; /* Allows table to exceed 100% width and rely on wrapper scroll */
+  }
+
+  /* Shrink the cell padding significantly */
+  tbody td, tbody th, thead th {
+    padding: 4px 5px; 
+    font-size: 0.75rem;
+  }
+
+  /* Total Row Adjustment */
+  #totalRow td {
+    font-size: 0.9rem;
+  }
+
+  /* 3. Button Layout Fix (Vertical Stacking) - ONLY for page content buttons */
+  .button-group:not(.header-bar .button-group) {
+    flex-direction: column; /* STACKS BUTTONS VERTICALLY */
+    gap: 8px; 
+    align-items: stretch; /* Makes buttons full width of the container */
+    padding-right: 0;
+  }
+  
+  .button-group:not(.header-bar .button-group) .btn {
+    width: 100%; /* Ensure full width when stacked */
+    font-size: 1rem; /* Keep button text readable */
+    padding: 0.75rem 1rem;
+  }
+
+  /* Adjust header elements for smaller screens (Header buttons remain horizontal via specificity) */
+  .header-bar {
+    padding: 0 0.5rem;
+  }
+  
+  #topWelcomeMessage {
+    font-size: 0.9em;
+  }
+
+  .header-bar .button-group {
+    gap: 15px;
+    /* Explicitly keep header buttons horizontal */
+    flex-direction: row; 
+  }
 }

@@ -1,134 +1,149 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Card Game Score Calculator</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Card Game Score Calculator</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="bg-overlay"></div>
-    <div id="persistentHeader" class="header-bar hidden">
+  <div class="bg-overlay"></div>
+  <div id="persistentHeader" class="header-bar hidden">
+  
+    <h3 id="topWelcomeMessage" style="margin: 0;"></h3> 
     
-        <h3 id="topWelcomeMessage" style="margin: 0;"></h3> 
-        
-        <div class="button-group">
-            <button id="historyBtn" class="btn btn-link" disabled>History</button>
-            <button id="logoutBtn" class="btn btn-link">Logout</button>
-        </div>
+    <div class="button-group">
+      <button id="historyBtn" class="btn btn-link" disabled>History</button>
+      <button id="logoutBtn" class="btn btn-link">Logout</button>
     </div>
-    <div id="welcome-page" class="container-card hidden">
-        <h3 class="auth-subtitle" style="margin-top: 0.75rem; margin-bottom: 1.5rem;">
-            Let's get started by setting up the game.
-        </h3>
-        
-        <div class="player-count-select-group">
-            <label for="numPlayers" class="label-text">Number of Players:</label>
-            <select id="numPlayers" class="form-input">
-                <option value="" disabled selected>Select players</option>
-                <option value="3">3 Players</option>
-                <option value="4">4 Players</option>
+  </div>
+  <div id="welcome-page" class="container-card hidden">
+    <h3 class="auth-subtitle" style="margin-top: 0.75rem; margin-bottom: 1.5rem;">
+      Let's get started by setting up the game.
+    </h3>
+    
+    <div class="player-count-select-group">
+      <label for="numPlayers" class="label-text">Number of Players:</label>
+      <select id="numPlayers" class="form-input">
+        <option value="" disabled selected>Select players</option>
+        <option value="3">3 Players</option>
+        <option value="4">4 Players</option>
+      </select>
+    </div>
+
+    <div id="playerNamesContainer" class="player-names-grid"></div>
+
+    <div class="button-group">
+      <button id="playBtn" class="btn btn-primary" disabled>Proceed to Play</button>
+      <button id="resetBtn" class="btn btn-secondary">Reset</button>
+    </div>
+  </div>
+
+  <div id="game-page" class="container-card hidden">
+     <h3 class="text-4xl font-bold text-center mb-6">Score Sheet</h3>
+     <div class="table-container mb-6">
+                <!-- START of change: Added the table-responsive wrapper -->
+                <div class="table-responsive">
+        <table>
+          <thead>
+            <tr id="tableHeader" class="table-header"></tr>
+          </thead>
+          <tbody id="scoreTableBody"></tbody>
+          <tfoot>
+            <tr id="totalRow" class="total-row"></tr>
+          </tfoot>
+        </table>
+                </div>
+                <!-- END of change -->
+    </div>
+    
+    <div class="button-group">
+      <button id="addRowBtn" class="btn btn-primary">Next Round</button>
+      <button id="pauseBtn" class="btn btn-secondary">Pause</button>
+      <button id="completeBtn" class="btn btn-danger">Complete</button>
+      <button id="gameResetBtn" class="btn btn-danger">Reset Session</button>
+      <button id="gameBackBtn" class="btn btn-danger">Back</button>
+    </div>
+
+
+    <div id="statusMessage" class="error-message-global"></div>
+  </div>
+
+  <div id="authModal" class="modal-overlay visible">
+    <div class="modal-content container-card">
+      
+      <div id="signInPage">
+        <h2 class="auth-title">Hey, Let's go in ❤️</h2>
+        <form id="signInForm" novalidate>
+          <div class="input-group">
+            <label for="signInUsername">Username</label>
+            <input type="text" id="signInUsername" placeholder="Enter username" class="form-input">
+            <div class="input-error-message hidden"></div>
+          </div>
+          <div class="input-group">
+            <label for="signInDOB">Date of Birth</label>
+            <input type="date" id="signInDOB" class="form-input">
+            <div class="input-error-message hidden"></div>
+          </div>
+          <button type="submit" class="btn btn-primary full-width">Let's Play</button>
+        </form>
+        <button type="button" id="goSignUp" class="link-button">Hey, New here? Let's Start</button>
+      </div>
+
+      <div id="signUpPage" class="hidden">
+        <h2 class="auth-title">Welcome, let's go in</h2>
+        <p class="auth-subtitle">Please enter the below details to start</p>
+        <form id="signUpForm" novalidate>
+          <div class="input-group">
+            <label for="signUpUsername">Username</label>
+            <input type="text" id="signUpUsername" placeholder="Enter username" class="form-input">
+            <div class="input-error-message hidden"></div>
+          </div>
+          <div class="input-group">
+            <label for="signUpDOB">Date of Birth</label>
+            <input type="date" id="signUpDOB" class="form-input">
+            <div class="input-error-message hidden"></div>
+          </div>
+          <div class="input-group">
+            <label for="signup-security-question">Secret Question</label>
+            <select id="signup-security-question" class="form-input">
+              <option value="" disabled selected>Select a security question</option>
+              <option value="pet">What was the name of your first pet?</option>
+              <option value="school">What was the name of your elementary school?</option>
+              <option value="friend">What is the name of your best friend from childhood?</option>
+              <option value="city">In what city were you born?</option>
+              <option value="teacher">What was the last name of your favorite teacher?</option>
+              <option value="movie">What is your favorite movie?</option>
             </select>
-        </div>
+            <div class="input-error-message hidden"></div>
+          </div>
+          <div class="input-group">
+            <label for="signup-security-answer">Answer</label>
+            <input type="text" id="signup-security-answer" class="form-input" placeholder="Enter your answer" />
+            <div class="input-error-message hidden"></div>
+          </div>
 
-        <div id="playerNamesContainer" class="player-names-grid"></div>
-
-        <div class="button-group">
-            <button id="playBtn" class="btn btn-primary" disabled>Proceed to Play</button>
-            <button id="resetBtn" class="btn btn-secondary">Reset</button>
-        </div>
+          <button type="submit" class="btn btn-primary full-width">All Set</button>
+          <button type="button" id="backToSignIn" class="btn btn-secondary full-width">Back</button>
+      </div>
     </div>
+  </div>
 
-    <div id="game-page" class="container-card hidden">
-        <h1 class="text-4xl font-bold text-center mb-6">Score Sheet</h1>
-        <div class="table-container mb-6">
-            <table>
-                <thead>
-                    <tr id="tableHeader" class="table-header"></tr>
-                </thead>
-                <tbody id="scoreTableBody"></tbody>
-                <tfoot>
-                    <tr id="totalRow" class="total-row"></tr>
-                </tfoot>
-            </table>
-        </div>
-        
-        <div class="button-group">
-            <button id="addRowBtn" class="btn btn-primary" disabled>Add Round</button>
-            <button id="historyBtn" class="btn btn-secondary">History</button>
-        </div>
-
-        <div class="logout-container">
-            <button id="logoutBtn" class="btn btn-secondary">Logout</button>
-        </div>
-
-        <div id="statusMessage" class="error-message-global"></div>
+  <!-- Confirmation dialogs for the scoresheet reset and complete -->
+  <div id="confirmationModal" class="modal-overlay hidden">
+    <div class="modal-content container-card">
+      <p id="modalMessage" class="modal-text"></p>
+      <div class="button-group modal-btn-group">
+        <button id="confirmActionBtn" class="btn btn-primary">Yes, Proceed</button>
+        <button id="cancelActionBtn" class="btn btn-secondary">Cancel</button>
+      </div>
     </div>
+  </div>
 
-    <div id="authModal" class="modal-overlay visible">
-        <div class="modal-content container-card">
-            
-            <div id="signInPage">
-                <h2 class="auth-title">Hey, Let's go in ❤️</h2>
-                <form id="signInForm" novalidate>
-                    <div class="input-group">
-                        <label for="signInUsername">Username</label>
-                        <input type="text" id="signInUsername" placeholder="Enter username" class="form-input">
-                        <div class="input-error-message hidden"></div>
-                    </div>
-                    <div class="input-group">
-                        <label for="signInDOB">Date of Birth</label>
-                        <input type="date" id="signInDOB" class="form-input">
-                        <div class="input-error-message hidden"></div>
-                    </div>
-                    <button type="submit" class="btn btn-primary full-width">Let's Play</button>
-                </form>
-                <button type="button" id="goSignUp" class="link-button">Hey, New here? Let's Start</button>
-            </div>
-
-            <div id="signUpPage" class="hidden">
-                <h2 class="auth-title">Welcome, let's go in</h2>
-                <p class="auth-subtitle">Please enter the below details to start</p>
-                <form id="signUpForm" novalidate>
-                    <div class="input-group">
-                        <label for="signUpUsername">Username</label>
-                        <input type="text" id="signUpUsername" placeholder="Enter username" class="form-input">
-                        <div class="input-error-message hidden"></div>
-                    </div>
-                    <div class="input-group">
-                        <label for="signUpDOB">Date of Birth</label>
-                        <input type="date" id="signUpDOB" class="form-input">
-                        <div class="input-error-message hidden"></div>
-                    </div>
-                    <div class="input-group">
-                        <label for="signup-security-question">Secret Question</label>
-                        <select id="signup-security-question" class="form-input">
-                            <option value="" disabled selected>Select a security question</option>
-                            <option value="pet">What was the name of your first pet?</option>
-                            <option value="school">What was the name of your elementary school?</option>
-                            <option value="friend">What is the name of your best friend from childhood?</option>
-                            <option value="city">In what city were you born?</option>
-                            <option value="teacher">What was the last name of your favorite teacher?</option>
-                            <option value="movie">What is your favorite movie?</option>
-                        </select>
-                        <div class="input-error-message hidden"></div>
-                    </div>
-                    <div class="input-group">
-                        <label for="signup-security-answer">Answer</label>
-                        <input type="text" id="signup-security-answer" class="form-input" placeholder="Enter your answer" />
-                        <div class="input-error-message hidden"></div>
-                    </div>
-
-                    <button type="submit" class="btn btn-primary full-width">All Set</button>
-                    <button type="button" id="backToSignIn" class="btn btn-secondary full-width">Back</button>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <script type="module" src="scripts/validation.js"></script>
-     <script type="module" src="scripts/auth.js"></script>
-     <script type="module" src="scripts/game.js"></script> 
-    
+  <script type="module" src="scripts/validation.js"></script>
+  <script type="module" src="scripts/auth.js"></script>
+  <script type="module" src="scripts/scoresheet.js"></script> 
+  <script type="module" src="scripts/game.js"></script> 
+  
 </body>
 </html>
