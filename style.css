@@ -344,7 +344,7 @@ tbody td, tbody th {
     /* End Spinner Hide */
 
     /* Existing shared styles */
-  width: 45px; /* Half width (compared to max column size) */
+  width: 100%; /* Half width (compared to max column size) */
   height: 28px; /* Increased height */
   text-align: center;
   padding: 2px 5px; /* Padding for height control */
