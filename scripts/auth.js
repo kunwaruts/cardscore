@@ -1,8 +1,5 @@
 import { displayError, clearError, clearAllFormErrors, validateTextRule, calculateAge } from './validation.js';
 
-// --- Hardcoded Testing Credentials ---
-const SUCCESSFUL_USERNAME = 'test';
-const SUCCESSFUL_DOB = '1995-07-11'; 
 
 // --- DOM Element Definitions ---
 const authModal = document.getElementById('authModal');
@@ -16,7 +13,7 @@ const signUpForm = document.getElementById('signUpForm');
 
 const goSignUp = document.getElementById('goSignUp');
 const backToSignIn = document.getElementById('backToSignIn'); 
-// ------------------------------------------
+
 
 // --- Helper Functions ---
 
@@ -24,19 +21,15 @@ function autoLogin(username) {
     const persistentHeader = document.getElementById('persistentHeader'); 
     const topWelcomeMessage = document.getElementById('topWelcomeMessage'); 
 
-    // 1. Hide modal and show the welcome page
     if (authModal) authModal.classList.add('hidden');
     if (welcomePage) welcomePage.classList.remove('hidden');
 
-    // 2. SHOW the persistent header
     if (persistentHeader) persistentHeader.classList.remove('hidden'); 
-    
-    // CRITICAL: Dynamically set the 'Hey <Username>' message.
+
     if (topWelcomeMessage) {
         topWelcomeMessage.textContent = `Hey, ${username}`; 
     }
 
-    // 3. Clear/Hide the old greeting element (now used for setup errors in game.js)
     const welcomeStatusMessage = document.getElementById('welcomeStatusMessage'); 
     if (welcomeStatusMessage) {
         welcomeStatusMessage.textContent = ''; 
@@ -45,65 +38,57 @@ function autoLogin(username) {
     console.log('Authentication successful. Transitioning to welcome page.');
 }
 
-// --- Sign-In Logic ---
 
-signInForm.addEventListener('submit', function(e) {
+// --- Sign-In Logic Integrating MySQL backend ---
+
+signInForm.addEventListener('submit', async function(e) {
     e.preventDefault();
-    clearAllFormErrors(signInForm); // Clear previous errors
+    clearAllFormErrors(signInForm);
 
     const usernameInput = document.getElementById('signInUsername');
     const dobInput = document.getElementById('signInDOB');
-    
+
     const username = usernameInput.value.trim();
-    const dob = dobInput.value; 
+    const dob = dobInput.value;
 
     let isFormValid = true;
+    if (username === '') { displayError(usernameInput, 'Username is required.'); isFormValid = false; }
+    if (dob === '') { displayError(dobInput, 'Date of Birth is required.'); isFormValid = false; }
 
-    // --- 1. Basic Empty Field Check ---
-    if (username === '') { 
-        displayError(usernameInput, 'Username is required.'); 
-        isFormValid = false;
-    }
-    if (dob === '') { 
-        displayError(dobInput, 'Date of Birth is required.'); 
-        isFormValid = false;
-    }
-    
-    if (!isFormValid) { return; }
+    if (!isFormValid) return;
 
-    // --- 2. Successful Login Check ---
-    if (username === SUCCESSFUL_USERNAME && dob === SUCCESSFUL_DOB) {
-        autoLogin(username);
-        return; // Exit after successful login
-    } 
-    
-    // ==========================================================
-    // 3. Failed Login Feedback (WCAG Compliant Error Suggestion) 
-    // ==========================================================
+    const formData = new URLSearchParams();
+    formData.append('username', username);
+    formData.append('dob', dob);
 
-    let loginFailed = false;
+    try {
+        const response = await fetch('server/signin.php', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+            body: formData.toString()
+        });
+        const result = await response.json();
 
-    // Check if the username is wrong
-    if (username !== SUCCESSFUL_USERNAME) {
-        displayError(usernameInput, 'Username is incorrect.');
-        loginFailed = true;
-    } else {
-        clearError(usernameInput); // Ensure correct username doesn't show an error
-    }
-    
-    // Check if the Date of Birth is wrong
-    if (dob !== SUCCESSFUL_DOB) {
-        // Display DOB error, regardless of the username state
-        displayError(dobInput, 'Date of Birth is incorrect.');
-        loginFailed = true;
-    } else {
-        clearError(dobInput); // Ensure correct DOB doesn't show an error
-    }
-    
-    if (loginFailed) {
-        console.log('Login failed due to incorrect credentials.');
+        if (result.error) {
+            if (result.error.includes('Username')) {
+                displayError(usernameInput, result.error);
+                clearError(dobInput);
+            } else if (result.error.includes('Date of Birth')) {
+                displayError(dobInput, result.error);
+                clearError(usernameInput);
+            } else {
+                displayError(usernameInput, result.error);
+            }
+        } else if (result.message === 'Login successful') {
+            autoLogin(username);
+        }
+
+    } catch (err) {
+        console.error('Sign-in request failed:', err);
+        displayError(usernameInput, 'Server error. Please try again later.');
     }
 });
+
 
 // --- Sign-Up Transition Logic ---
 goSignUp.addEventListener('click', () => {
@@ -112,13 +97,38 @@ goSignUp.addEventListener('click', () => {
     signUpPage.classList.remove('hidden');
 });
 
+
 backToSignIn.addEventListener('click', () => {
     clearAllFormErrors(signUpForm);
     signUpPage.classList.add('hidden');
     signInPage.classList.remove('hidden');
 });
 
-// --- Sign-Up Submission Logic ---
+
+// --- Username Availability Check on Blur (Sign-Up) ---
+
+const signUpUsernameInput = document.getElementById('signUpUsername');
+
+signUpUsernameInput.addEventListener('blur', () => {
+    const username = signUpUsernameInput.value.trim();
+    if (username.length === 0) return;
+
+    clearError(signUpUsernameInput);
+
+    fetch(`server/check_username.php?username=${encodeURIComponent(username)}`)
+    .then(response => response.json())
+    .then(data => {
+        if (data.exists) {
+            displayError(signUpUsernameInput, 'Username not available');
+        }
+    })
+    .catch(error => {
+        console.error('Username availability check failed:', error);
+    });
+});
+
+
+// --- Sign-Up Submission Logic with urlencoded POST ---
 
 signUpForm.addEventListener('submit', function(e) {
     e.preventDefault();
@@ -133,55 +143,65 @@ signUpForm.addEventListener('submit', function(e) {
     const dob = dobInput.value; 
     const question = securityQuestionSelect.value;
     const answer = securityAnswerInput.value.trim();
-    
+
     let isFormValid = true;
 
-    // --- 0. Initial Required Check ---
     if (username === '') { displayError(usernameInput, 'Required field cannot be empty.'); isFormValid = false; }
     if (dob === '') { displayError(dobInput, 'Required field cannot be empty.'); isFormValid = false; }
     if (question === '') { displayError(securityQuestionSelect, 'Required field cannot be empty.'); isFormValid = false; }
     if (answer === '') { displayError(securityAnswerInput, 'Required field cannot be empty.'); isFormValid = false; }
 
-    if (!isFormValid) { return; } 
+    if (!isFormValid) { return; }
 
-    // --- 1. Advanced Username/Answer Validation ---
     if (!validateTextRule(usernameInput, username, 'Username')) {
         isFormValid = false;
     }
     if (!validateTextRule(securityAnswerInput, answer, 'Security Answer')) {
         isFormValid = false;
     }
-    
-    // --- 2. Date of Birth Age Check (Min 18, Max 100) ---
+
     const age = calculateAge(dob);
-    
+
     if (age < 18) {
         displayError(dobInput, 'Min age 18. You must be at least 18 years old to sign up.');
         isFormValid = false;
     } else if (age > 100) {
         displayError(dobInput, 'Max age 100. Date of Birth is too far in the past.');
         isFormValid = false;
-    } else {
-        clearError(dobInput);
     }
 
-    // --- Submission and Auto-Login Logic ---
-    if (isFormValid) {
-        const authCard = authModal.querySelector('.modal-content');
-        
-        // Success Message
-        authCard.innerHTML = `
-            <div style="text-align: center;">
-                <h2 class="auth-title" style="color: #4CAF50; margin-bottom: 0.5rem;">Account Created!</h2>
-                <p class="auth-subtitle" style="margin-top: 0.5rem;">Successful, please wait... (5 seconds)</p>
-            </div>
-        `;
-        
-        setTimeout(() => {
-            autoLogin(username); 
-        }, 5000); 
+    if (!isFormValid) return;
 
-    } else {
-        console.log('Sign-Up validation failed.');
-    }
+    const formData = new URLSearchParams();
+    formData.append('username', username);
+    formData.append('dob', dob);
+    formData.append('security_question', question);
+    formData.append('security_answer', answer);
+
+    fetch('server/signup.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: formData.toString()
+    })
+    .then(response => response.json())
+    .then(result => {
+        if (result.error) {
+            displayError(usernameInput, result.error);
+        } else if (result.message) {
+            const authCard = authModal.querySelector('.modal-content');
+            authCard.innerHTML = `
+                <div style="text-align: center;">
+                    <h2 class="auth-title" style="color: #4CAF50; margin-bottom: 0.5rem;">Account Created!</h2>
+                    <p class="auth-subtitle" style="margin-top: 0.5rem;">Successful, please wait... (5 seconds)</p>
+                </div>
+            `;
+            setTimeout(() => {
+                autoLogin(username);
+            }, 5000);
+        }
+    })
+    .catch(err => {
+        console.error('Sign-up request failed:', err);
+        displayError(usernameInput, 'Server error. Please try again later.');
+    });
 });

@@ -37,6 +37,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const TOTAL_TRICKS = 13; // Max tricks available in the deck
     let actionToConfirm = null; // Stores the function to execute after modal confirmation
 
+    //FOR DB ACTION
+    let gameId = null;
+    let loggedInUsername = null;
+
 
     // ==========================================================
     // 1. MODAL HANDLING
@@ -72,23 +76,22 @@ document.addEventListener('DOMContentLoaded', () => {
      * Initializes the scoresheet state and table. Called exclusively by game.js.
      * @param {string[]} names - Array of player names.
      */
-    window.startGameSession = function(names) {
+    window.startGameSession = function(names,gId, username) {
         playerNames = names;
         numPlayers = names.length;
         scores = [];
         roundNumber = 0;
         scoreTableBody.innerHTML = '';
         
+        gameId = gId || null;                 // Store current game ID
+        loggedInUsername = username || null;  // Store logged-in username
+        
         updateTableHeader();
         updateTotals(); 
         clearGameError();
         
         addRowBtn.disabled = false;
-        
-        // Start the first round
         addRound(true);
-
-        // Apply integer input enforcement to all initial inputs
         document.querySelectorAll('.score-input-box').forEach(enforceIntegerInput);
     };
 
@@ -425,7 +428,46 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             // Clear any lingering global error now that the round is successfully locked
             clearGameError();
+            sendRoundScoresToServer(previousRoundIndex);
         }
+
+        async function sendRoundScoresToServer(roundIdx) {
+            if (!gameId || !loggedInUsername) {
+                console.warn('Missing gameId or loggedInUsername, cannot send round scores');
+                return;
+            }
+            
+            const roundData = {};
+            const roundScores = scores[roundIdx];
+            if (!roundScores) return;
+
+            playerNames.forEach((player, i) => {
+                roundData[player] = roundScores[i].finalScore || 0;
+            });
+
+            const payload = {
+                username: loggedInUsername,
+                game_id: gameId,
+                round: roundIdx + 1,
+                scores: roundData
+            };
+
+            try {
+                const response = await fetch('server/update_round_score.php', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(payload)
+                });
+                const result = await response.json();
+                if (result.error) {
+                    showGameError('Error saving round scores: ' + result.error);
+                }
+            } catch (error) {
+                showGameError('Network error when saving round scores.');
+                console.error(error);
+            }
+        }
+
         
         // --- STATE PREPARATION ---
         roundNumber++;
@@ -620,16 +662,35 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // COMPLETE button - Declares Winner and Resets
-    completeBtn.addEventListener('click', () => {
+    completeBtn.addEventListener('click', async () => {
         showConfirmationModal(
             '**Game Completion:** Are you sure you want to complete the game? The winner will be declared and the session will be reset.',
-            () => {
+            async () => {
+                try {
+                    if (gameId && loggedInUsername) {
+                        const response = await fetch('server/complete_game.php', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ username: loggedInUsername, game_id: gameId })
+                        });
+                        const result = await response.json();
+                        if (result.error) {
+                            showGameError('Error completing game: ' + result.error);
+                            return;
+                        }
+                    }
+                } catch (err) {
+                    showGameError('Network error finishing game.');
+                    console.error(err);
+                    return;
+                }
+                // After the async backend call, calculate and display winner
                 const totals = [];
                 totalRow.querySelectorAll('.total-score').forEach(td => totals.push(parseInt(td.textContent) || 0));
 
                 let maxScore = -Infinity;
                 let winnerIndex = -1;
-                
+
                 totals.forEach((score, index) => {
                     if (score > maxScore) {
                         maxScore = score;
@@ -637,10 +698,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 });
 
-                if(winnerIndex !== -1 && playerNames[winnerIndex]) {
+                if (winnerIndex !== -1 && playerNames[winnerIndex]) {
                     showConfirmationModal(
                         `🏆 **Game Over!** The winner is **${playerNames[winnerIndex]}** with a total score of **${maxScore}**!`,
-                        gamePageReset 
+                        gamePageReset
                     );
                 } else {
                     showConfirmationModal(
@@ -651,6 +712,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         );
     });
+
 
     // RESET SESSION button
     gameResetBtn.addEventListener('click', () => {
@@ -671,3 +733,4 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
+
