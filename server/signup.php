@@ -1,4 +1,5 @@
 <?php
+session_start();
 header('Content-Type: application/json');
 
 $servername = "localhost";
@@ -78,10 +79,11 @@ try {
     }
 
     // 5. Optionally, initialize user DB's tables here, example:
-    // $pdo->exec("USE `$dbNameUser`");
-    // $pdo->exec('CREATE TABLE IF NOT EXISTS example_table (id INT PRIMARY KEY AUTO_INCREMENT, data VARCHAR(255))');
+    //$pdo->exec("USE `$dbNameUser`");
+    //$pdo->exec('CREATE TABLE IF NOT EXISTS example_table (id INT PRIMARY KEY AUTO_INCREMENT, data VARCHAR(255))');
 
-    echo json_encode(['message' => 'User created successfully, personal database initialized']);
+    $_SESSION['username'] = $username;
+    echo json_encode(['message' => 'Signup successful', 'username' => $username]);
 
 } catch (PDOException $e) {
     echo json_encode(['error' => 'Database error: ' . $e->getMessage()]);

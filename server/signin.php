@@ -1,4 +1,5 @@
 <?php
+session_start();
 header('Content-Type: application/json');
 
 $servername = "localhost";
@@ -51,7 +52,9 @@ try {
     $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if ($row['dob'] === $dob) {
-        echo json_encode(['message' => 'Login successful']);
+        // Set session and cookie for persistent login
+        $_SESSION['username'] = $username; // store in session only
+        echo json_encode(['message' => 'Login successful', 'username' => $username]);
     } else {
         echo json_encode(['error' => 'Date of Birth is incorrect.']);
     }

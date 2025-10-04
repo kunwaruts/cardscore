@@ -47,6 +47,12 @@ try {
 
     echo json_encode(['message' => 'Game marked as completed and removed from game_status']);
 
+    //CHECK JSOON FILE AND DELETE
+    $gameSaveFile = __DIR__ . "/gamesaves/game_$gameId.json";
+    if (file_exists($gameSaveFile)) {
+        unlink($gameSaveFile);
+    }
+
 } catch (PDOException $e) {
     echo json_encode(['error' => 'Database error: ' . $e->getMessage()]);
 }

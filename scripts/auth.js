@@ -13,6 +13,28 @@ const signUpForm = document.getElementById('signUpForm');
 
 const goSignUp = document.getElementById('goSignUp');
 const backToSignIn = document.getElementById('backToSignIn'); 
+let loggedInUsername = null;
+
+//SESSION CHECK ON PAGE LOAD
+window.addEventListener('load', async () => {
+    const storedUsername = localStorage.getItem('username');
+    if (storedUsername) {
+        try {
+            const response = await fetch('server/check_session.php');
+            const result = await response.json();
+            if (result.username && result.username === storedUsername) {
+                loggedInUsername = storedUsername;
+                autoLogin(loggedInUsername);
+                return;
+            }
+        } catch {
+            // ignore error
+        }
+        localStorage.removeItem('username');
+    }
+    document.getElementById('authModal').classList.remove('hidden');
+});
+
 
 
 // --- Helper Functions ---
@@ -47,7 +69,6 @@ signInForm.addEventListener('submit', async function(e) {
 
     const usernameInput = document.getElementById('signInUsername');
     const dobInput = document.getElementById('signInDOB');
-
     const username = usernameInput.value.trim();
     const dob = dobInput.value;
 
@@ -79,8 +100,10 @@ signInForm.addEventListener('submit', async function(e) {
             } else {
                 displayError(usernameInput, result.error);
             }
-        } else if (result.message === 'Login successful') {
-            autoLogin(username);
+        } else if (result.message === 'Login successful' && result.username) {
+            localStorage.setItem('username', result.username);
+            loggedInUsername = result.username;
+            autoLogin(result.username);
         }
 
     } catch (err) {

@@ -1,6 +1,9 @@
 // This file manages all game state, score calculations, and score sheet DOM manipulation.
 // It exposes the 'startGameSession' function for game.js to initiate the session.
-
+let gameId = null;
+let scores = []; 
+let playerNames = [];
+import {saveGameProgress} from './gameinprogress.js';
 document.addEventListener('DOMContentLoaded', () => {
     // --- DOM Element Definitions ---
     const welcomePage = document.getElementById('welcome-page');
@@ -29,16 +32,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- State Variables ---
     let numPlayers = 0;
-    let playerNames = [];
+
     // scores array structure: [[{bid: 0, score: 0, finalScore: 0}, ...], [Round 2], ...]
-    let scores = []; 
+    
     let roundNumber = 0;
     const MAX_ROUNDS = 13;
     const TOTAL_TRICKS = 13; // Max tricks available in the deck
     let actionToConfirm = null; // Stores the function to execute after modal confirmation
 
     //FOR DB ACTION
-    let gameId = null;
+    
     let loggedInUsername = null;
 
 
@@ -651,6 +654,7 @@ document.addEventListener('DOMContentLoaded', () => {
     addRowBtn.addEventListener('click', () => {
         // Validation for locking the previous round happens inside addRound()
         addRound();
+        saveGameProgress();
     });
 
     // PAUSE button (Placeholder)
@@ -733,4 +737,28 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
+
+export function getCurrentGameState() {
+  // Assume global playerNames and scores arrays exist and are accurate
+  // scores = [ [{bid, score, finalScore}, ...players], ...rounds ]
+  // playerNames = [ "A", "B", "C", ... ]
+
+  if (!Array.isArray(scores) || !Array.isArray(playerNames)) {
+    return [];
+  }
+
+  // Structure: array of rounds, each round = array of {playername, bid, score, final}
+  const result = scores.map((roundArr, roundIdx) =>
+    roundArr.map((playerObj, playerIdx) => ({
+      playername: playerNames[playerIdx],
+      bid: playerObj.bid || 0,
+      score: playerObj.score || 0,
+      final: playerObj.finalScore || 0
+    }))
+  );
+  return result;
+}
+export function getGameId() {
+  return gameId;
+}
 

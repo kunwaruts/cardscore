@@ -1,0 +1,53 @@
+[
+    [
+        {
+            "playername": "uhuh",
+            "bid": 3,
+            "score": 3
+        },
+        {
+            "playername": "drd",
+            "bid": 4,
+            "score": 4
+        },
+        {
+            "playername": "rdr",
+            "bid": 5,
+            "score": 6
+        }
+    ],
+    [
+        {
+            "playername": "uhuh",
+            "bid": 4,
+            "score": 5
+        },
+        {
+            "playername": "drd",
+            "bid": 4,
+            "score": 5
+        },
+        {
+            "playername": "rdr",
+            "bid": 4,
+            "score": 3
+        }
+    ],
+    [
+        {
+            "playername": "uhuh",
+            "bid": 0,
+            "score": 0
+        },
+        {
+            "playername": "drd",
+            "bid": 0,
+            "score": 0
+        },
+        {
+            "playername": "rdr",
+            "bid": 0,
+            "score": 0
+        }
+    ]
+]
