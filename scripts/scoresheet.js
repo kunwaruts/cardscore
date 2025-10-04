@@ -22,7 +22,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const pauseBtn = document.getElementById('pauseBtn');
     const completeBtn = document.getElementById('completeBtn');
     const gameResetBtn = document.getElementById('gameResetBtn'); // Reset Session
-    const logoutBtn = document.getElementById('logoutBtn');
 
     // Modals (from updated HTML)
     const confirmationModal = document.getElementById('confirmationModal');
@@ -726,16 +725,6 @@ document.addEventListener('DOMContentLoaded', () => {
         );
     });
 
-    // LOGOUT button (Returns to initial auth/welcome screen)
-    logoutBtn.addEventListener('click', () => {
-        gamePageReset();
-        
-        const authModal = document.getElementById('authModal');
-        if (authModal) {
-            authModal.classList.remove('hidden'); 
-            authModal.style.display = 'flex'; 
-        }
-    });
 });
 
 export function getCurrentGameState() {
