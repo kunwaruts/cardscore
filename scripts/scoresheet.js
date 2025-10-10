@@ -1,9 +1,14 @@
 // This file manages all game state, score calculations, and score sheet DOM manipulation.
 // It exposes the 'startGameSession' function for game.js to initiate the session.
+import {saveGameProgress} from './gameinprogress.js';
+import { showConfirmationModal } from './modalhandler.js';
+
 let gameId = null;
 let scores = []; 
 let playerNames = [];
-import {saveGameProgress} from './gameinprogress.js';
+let roundNumber = 0;
+let loggedInUsername = null;
+
 document.addEventListener('DOMContentLoaded', () => {
     // --- DOM Element Definitions ---
     const welcomePage = document.getElementById('welcome-page');
@@ -19,56 +24,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Game Control Buttons (from updated HTML)
     const addRowBtn = document.getElementById('addRowBtn'); // Next Round
-    const pauseBtn = document.getElementById('pauseBtn');
     const completeBtn = document.getElementById('completeBtn');
-    const gameResetBtn = document.getElementById('gameResetBtn'); // Reset Session
 
-    // Modals (from updated HTML)
-    const confirmationModal = document.getElementById('confirmationModal');
-    const modalMessage = document.getElementById('modalMessage');
-    const confirmActionBtn = document.getElementById('confirmActionBtn');
-    const cancelActionBtn = document.getElementById('cancelActionBtn');
 
     // --- State Variables ---
     let numPlayers = 0;
 
     // scores array structure: [[{bid: 0, score: 0, finalScore: 0}, ...], [Round 2], ...]
-    
-    let roundNumber = 0;
+
     const MAX_ROUNDS = 13;
     const TOTAL_TRICKS = 13; // Max tricks available in the deck
     let actionToConfirm = null; // Stores the function to execute after modal confirmation
 
     //FOR DB ACTION
-    
-    let loggedInUsername = null;
-
-
-    // ==========================================================
-    // 1. MODAL HANDLING
-    // ==========================================================
-    const showConfirmationModal = (message, action) => {
-        modalMessage.innerHTML = message;
-        actionToConfirm = action;
-        confirmationModal.classList.remove('hidden');
-        confirmationModal.style.display = 'flex';
-    };
-
-    const hideConfirmationModal = () => {
-        confirmationModal.classList.add('hidden');
-        confirmationModal.style.display = 'none';
-        actionToConfirm = null;
-    };
-
-    confirmActionBtn.addEventListener('click', () => {
-        if (actionToConfirm) {
-            actionToConfirm();
-        }
-        hideConfirmationModal();
-    });
-
-    cancelActionBtn.addEventListener('click', hideConfirmationModal);
-
+    //REMOVED MODAL HANDING FROM HERE
 
     // ==========================================================
     // 2. CORE GAME INITIALIZATION
@@ -86,6 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
         scoreTableBody.innerHTML = '';
         
         gameId = gId || null;                 // Store current game ID
+        console.log("Session check = ",gameId);
         loggedInUsername = username || null;  // Store logged-in username
         
         updateTableHeader();
@@ -369,9 +339,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
             scores[previousRoundIndex].forEach(player => {
                 // Check if bid > 0 and score >= 0 (score 0 is allowed, but must be entered)
-                if (player.bid <= 0 || player.score === null || player.score === undefined) { 
+                if (player.bid <= 0 || player.bid === null || player.bid === undefined || player.score === null || player.score === undefined) { 
                     isRoundComplete = false;
                 }
+
                 roundTricksTotal += player.score;
             });
 
@@ -413,6 +384,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     prevScoreInputs.forEach(input => {
                         highlightInputError(input);
                     });
+                    return;
                 }
                 // -----------------------------------------------------------
                 
@@ -592,7 +564,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // Focus on the first bid input of the new row
-        row.querySelector('.bid-input').focus();
+        const firstBidInput = row.querySelector('.bid-input');
+        if (firstBidInput) {
+            firstBidInput.focus();
+        }
     }
 
 
@@ -656,81 +631,9 @@ document.addEventListener('DOMContentLoaded', () => {
         saveGameProgress();
     });
 
-    // PAUSE button (Placeholder)
-    pauseBtn.addEventListener('click', () => {
-        showConfirmationModal(
-            "Game Paused. This feature is a placeholder for game state saving.",
-            hideConfirmationModal
-        );
-    });
-
-    // COMPLETE button - Declares Winner and Resets
-    completeBtn.addEventListener('click', async () => {
-        showConfirmationModal(
-            '**Game Completion:** Are you sure you want to complete the game? The winner will be declared and the session will be reset.',
-            async () => {
-                try {
-                    if (gameId && loggedInUsername) {
-                        const response = await fetch('server/complete_game.php', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ username: loggedInUsername, game_id: gameId })
-                        });
-                        const result = await response.json();
-                        if (result.error) {
-                            showGameError('Error completing game: ' + result.error);
-                            return;
-                        }
-                    }
-                } catch (err) {
-                    showGameError('Network error finishing game.');
-                    console.error(err);
-                    return;
-                }
-                // After the async backend call, calculate and display winner
-                const totals = [];
-                totalRow.querySelectorAll('.total-score').forEach(td => totals.push(parseInt(td.textContent) || 0));
-
-                let maxScore = -Infinity;
-                let winnerIndex = -1;
-
-                totals.forEach((score, index) => {
-                    if (score > maxScore) {
-                        maxScore = score;
-                        winnerIndex = index;
-                    }
-                });
-
-                if (winnerIndex !== -1 && playerNames[winnerIndex]) {
-                    showConfirmationModal(
-                        `🏆 **Game Over!** The winner is **${playerNames[winnerIndex]}** with a total score of **${maxScore}**!`,
-                        gamePageReset
-                    );
-                } else {
-                    showConfirmationModal(
-                        "Game Over! Scores were inconclusive.",
-                        gamePageReset
-                    );
-                }
-            }
-        );
-    });
-
-
-    // RESET SESSION button
-    gameResetBtn.addEventListener('click', () => {
-          showConfirmationModal(
-            '⚠️ **Reset Session:** Are you sure you want to reset the scoring session? All current progress will be lost and cannot be restored.',
-            gamePageReset
-        );
-    });
-
 });
 
 export function getCurrentGameState() {
-  // Assume global playerNames and scores arrays exist and are accurate
-  // scores = [ [{bid, score, finalScore}, ...players], ...rounds ]
-  // playerNames = [ "A", "B", "C", ... ]
 
   if (!Array.isArray(scores) || !Array.isArray(playerNames)) {
     return [];
@@ -748,6 +651,18 @@ export function getCurrentGameState() {
   return result;
 }
 export function getGameId() {
-  return gameId;
+    console.log("SCORESHEET id = ",gameId);
+    return gameId;
+}
+
+export function getLoggedInUserName(){
+    return loggedInUsername;
+}
+
+export function getRoundNumber(){
+    return roundNumber;
+}
+export function getPlayerNames(){
+    return playerNames;
 }
 

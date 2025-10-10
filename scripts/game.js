@@ -1,6 +1,6 @@
 import { displayError, clearError } from './validation.js';
 
-let startGameSession;
+export let startGameSession;
 let loggedInUsername = null; // Store logged-in username
 let currentGameId = null;    // Store current game session/game_id
 
