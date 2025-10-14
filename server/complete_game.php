@@ -1,9 +1,9 @@
 <?php
 header('Content-Type: application/json');
 
-$servername = "localhost";
-$dbUser = "root";
-$dbPassword = "";
+$servername = "sql109.infinityfree.com";
+$dbUser = "if0_40166914";
+$dbPassword = "Cardgame0112";
 $centralDB = "Users";
 
 $data = json_decode(file_get_contents('php://input'), true);

@@ -2,9 +2,9 @@
 
 header('Content-Type: application/json');
 
-$servername = "localhost";
-$dbUser = "root";
-$dbPassword = "";
+$servername = "sql109.infinityfree.com";
+$dbUser = "if0_40166914";
+$dbPassword = "Cardgame0112";
 $dbName = "Users";
 
 if (!isset($_GET['username'])) {
