@@ -55,7 +55,7 @@ h2{
  width: 95%;
  max-width: 500px; /* Standard card size retained for non-game views */
  padding: 2rem;
- margin: 1rem auto;
+ margin: 2rem auto;
  color: white;
  border: 1px solid rgba(255, 255, 255, 0.2);
  box-sizing: border-box;
@@ -359,7 +359,7 @@ tbody td, tbody th {
     /* End Spinner Hide */
 
     /* Existing shared styles */
-  width: 45px; /* Half width (compared to max column size) */
+  width: 100%; /* Half width (compared to max column size) */
   height: 28px; /* Increased height */
   text-align: center;
   padding: 2px 5px; /* Padding for height control */
@@ -599,4 +599,84 @@ tbody td, tbody th {
     /* Explicitly keep header buttons horizontal */
     flex-direction: row; 
   }
+}
+
+/* notification banner */
+#activeGameBanner {
+  top: 8px;
+  background-color: #222;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #fff;
+  padding: 12px 20px;
+  font-size: 1rem;
+  font-weight: 500;
+  display: flex;
+  gap: 1rem;
+  justify-content: center; /* center horizontally */
+  align-items: center;
+  text-align: center;
+  backdrop-filter: blur(10px);
+  position: relative;
+
+  z-index: 1000;
+  margin: 0 auto;  /* vertical spacing and auto left/right */
+  max-width: 900px;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
+
+  /* Make sure banner itself is block and centered */
+  width: fit-content;
+  min-width: 300px; /* optional: set minimum width */
+}
+
+/* Style buttons like links with underline, consistent with your header buttons */
+#activeGameBanner .btn-link {
+  background: none;
+  border: none;
+  color: #1e90ff;                 /* DodgerBlue or your link color */
+  cursor: pointer;
+  font-size: 1rem;
+  text-decoration: underline;
+  padding: 0;
+  font-weight: 600;
+  transition: color 0.3s ease;
+}
+
+#activeGameBanner .btn-link:hover, 
+#activeGameBanner .btn-link:focus {
+  color: #63a4ff;                /* lighter blue on hover/focus */
+  outline: none;
+}
+
+/* Responsive adjustment - stack on small screens */
+@media (max-width: 480px) {
+  #activeGameBanner {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+}
+
+#loadingOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: black;
+  opacity: 1;
+  color: white;
+  font-size: 1rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1001;
+  display: none;
+}
+
+.error-message-global{
+  color: #ff0000;
+}
+
+.finishNotification{
+  color: #3bff0c;
 }

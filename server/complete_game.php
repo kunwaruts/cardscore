@@ -34,10 +34,11 @@ try {
     $pdo->exec($createGameStatusTable);
 
     // Mark as completed
-    $stmtUpdate = $pdo->prepare(
-        "UPDATE game_status SET game_in_progress = 'no' WHERE LOWER(username) = :username AND game_id = :game_id"
-    );
-    $stmtUpdate->execute([':username' => $username, ':game_id' => $gameId]);
+    // $stmtUpdate = $pdo->prepare(
+    //     "UPDATE game_status SET game_in_progress = 'no' WHERE LOWER(username) = :username AND game_id = :game_id"
+    // );
+    // $stmtUpdate->execute([':username' => $username, ':game_id' => $gameId]);
+
 
     // Delete entry for this game_id
     $stmtDelete = $pdo->prepare(

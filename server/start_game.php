@@ -5,7 +5,6 @@
     $dbUser = "root";
     $dbPassword = "";
     $centralDB = "Users";
-
     // Input validation
     $data = json_decode(file_get_contents('php://input'), true);
 

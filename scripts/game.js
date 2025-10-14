@@ -1,14 +1,17 @@
 import { displayError, clearError } from './validation.js';
+import { startGameSession } from './scoresheet.js';
 
-export let startGameSession;
+
+//export let startGameSession;
 let loggedInUsername = null; // Store logged-in username
 let currentGameId = null;    // Store current game session/game_id
 
 document.addEventListener('DOMContentLoaded', () => {
-    if (typeof window.startGameSession !== 'function') {
-        console.error("Initialization error: scoresheet.js failed to load or define startGameSession.");
-    }
-    startGameSession = window.startGameSession;
+    // if (typeof window.startGameSession !== 'function') {
+    //     console.error("Initialization error: scoresheet.js failed to load or define startGameSession.");
+    // }
+
+    //startGameSession = window.startGameSession;
 
     const welcomePage = document.getElementById('welcome-page');
     const gamePage = document.getElementById('game-page');

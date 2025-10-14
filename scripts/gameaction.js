@@ -1,7 +1,9 @@
 import { getGameId, getLoggedInUserName, getRoundNumber, getPlayerNames, getCurrentGameState } from './scoresheet.js';
-import { startGameSession } from './game.js';
+import { startGameSession } from './scoresheet.js';
 import { saveGameProgress } from './gameinprogress.js';
 import { showConfirmationModal } from './modalhandler.js';
+import { resetGameAction } from './resetGameAction.js';
+import { getPlayersRank } from './rank_calculator.js';
 
 document.addEventListener('DOMContentLoaded', () => {
   const completeBtn = document.getElementById('completeBtn');
@@ -9,30 +11,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const welcomePage = document.getElementById('welcome-page');
   const totalRow = document.getElementById('totalRow');
   const cancelBtn = document.getElementById('gameResetBtn');
-
-
-  function showWinnerModal(header, message, onNewGame, onReplay) {
-    const modalContent = `
-      <p>${message}</p>
-      <div style="margin-top: 1.5rem; display: flex; gap: 1rem;">
-        <button id="newGameBtn" class="btn complete-btn-style" style="flex:1">New Game</button>
-        <button id="replayGameBtn" class="btn complete-btn-style" style="flex:1">Replay</button>
-      </div>
-    `;
-    // Pass hideConfirmCancel option to hide default modal confirm/cancel buttons
-    showConfirmationModal(header, modalContent, null, { hideConfirmCancel: true });
-
-    setTimeout(() => {
-      document.getElementById('newGameBtn')?.addEventListener('click', () => {
-        window.hideModal();
-        onNewGame?.();
-      });
-      document.getElementById('replayGameBtn')?.addEventListener('click', () => {
-        window.hideModal();
-        onReplay?.();
-      });
-    }, 0);
-  }
 
   completeBtn.addEventListener('click', () => {
     const pendingRounds = 13 - getRoundNumber();
@@ -64,19 +42,14 @@ document.addEventListener('DOMContentLoaded', () => {
         // Compute winner and last player info
         const totals = [];
         totalRow.querySelectorAll('.total-row td').forEach(td => totals.push(parseInt(td.textContent) || 0));
-        const maxScore = Math.max(...totals);
-        const minScore = Math.min(...totals);
-        const winnerIndex = totals.indexOf(maxScore);
-        const lastIndex = totals.indexOf(minScore);
 
-        const winnerMessage = winnerIndex !== -1 && playerNames[winnerIndex]
-          ? `<strong>Winner is ${playerNames[winnerIndex]}, score: ${maxScore}!</strong><br><br>Last is ${playerNames[lastIndex]}, score: ${minScore}`
-          : "Scores were inconclusive.";
+        const winnerMessage = getPlayersRank(playerNames,totals);
 
         showWinnerModal(
           "Game Over", winnerMessage,
           // New Game callback
           () => {
+            resetGameAction();
             gamePage.classList.add('hidden');
             welcomePage.classList.remove('hidden');
           },
@@ -110,7 +83,7 @@ document.addEventListener('DOMContentLoaded', () => {
               startGameSession(playerNames, newGameId, username);
 
               await saveGameProgress();
-
+              resetGameAction();
               welcomePage.classList.add('hidden');
               gamePage.classList.remove('hidden');
             } catch (err) {
@@ -129,9 +102,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const username = getLoggedInUserName();
 
     const message = `
-      ⚠️ You are about to cancel this game; all the progress will be lost.<br>
-      To save the current game data mark the game as <b>Complete</b>.<br><br>
-      <b>Are you sure you want to proceed?</b>
+      ⚠ Canceling will remove all saved progress. Mark the game as <b>Complete</b> to preserve data.
+        .<br><br>
+      <b>Proceed with cancellation?</b>
     `;
 
     showConfirmationModal(
@@ -150,6 +123,9 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error("Error deleting game:", result.error);
             return;
           }
+          //Reset UI
+          resetGameAction();
+          
           // UI: Go back to setup/welcome
           gamePage.classList.add('hidden');
           welcomePage.classList.remove('hidden');
@@ -163,3 +139,27 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // CODE ENDS HERE
 });
+
+export function showWinnerModal(header, message, onNewGame, onReplay) {
+    const modalContent = `
+      <p>${message}</p>
+      <div style="margin-top: 1.5rem; display: flex; gap: 1rem;">
+        <button id="newGameBtn" class="btn complete-btn-style" style="flex:1">New Game</button>
+        <button id="replayGameBtn" class="btn complete-btn-style" style="flex:1">Replay</button>
+      </div>
+    `;
+    // Pass hideConfirmCancel option to hide default modal confirm/cancel buttons
+    showConfirmationModal(header, modalContent, null, { hideConfirmCancel: true });
+
+    setTimeout(() => {
+      document.getElementById('newGameBtn')?.addEventListener('click', () => {
+        window.hideModal();
+        onNewGame?.();
+      });
+      document.getElementById('replayGameBtn')?.addEventListener('click', () => {
+        window.hideModal();
+        onReplay?.();
+      });
+    }, 0);
+  }
+

@@ -4,6 +4,7 @@ header('Content-Type: application/json');
 $servername = "localhost";
 $dbUser = "root";
 $dbPassword = "";
+$dbName = "Users";
 
 $data = json_decode(file_get_contents('php://input'), true);
 
