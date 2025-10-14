@@ -5,7 +5,7 @@ header('Content-Type: application/json');
 $servername = "sql109.infinityfree.com";
 $dbUser = "if0_40166914";
 $dbPassword = "Cardgame0112";
-$dbName = "Users";
+$dbName = "if0_40166914_Users";
 
 if (!isset($_GET['username'])) {
     echo json_encode(['error' => 'No username specified']);

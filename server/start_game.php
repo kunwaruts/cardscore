@@ -4,7 +4,7 @@
     $servername = "sql109.infinityfree.com";
     $dbUser = "if0_40166914";
     $dbPassword = "Cardgame0112";
-    $centralDB = "Users";
+    $centralDB = "if0_40166914_Users";
     // Input validation
     $data = json_decode(file_get_contents('php://input'), true);
 
@@ -54,7 +54,7 @@
         $realUsername = $userRow['username'];
 
         // User DB name sanitized
-        $userDbName = preg_replace('/[^a-zA-Z0-9_]/', '_', $realUsername);
+        $userDbName = 'if0_40166914_'.preg_replace('/[^a-zA-Z0-9_]/', '_', $realUsername);
 
         // 3. Prepare game table name: username_YYYYMMDD_HHMMSS
         $gameTableName = $userDbName . '_' . date('Ymd_His');
