@@ -171,10 +171,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const nameInputs = playerNamesContainer.querySelectorAll('input[type="text"]');
         const playerNames = Array.from(nameInputs).map(input => input.value.trim());
+        const localTime = new Date().toLocaleString(); // e.g., "16/10/2025, 2:43:00 PM"
 
         const payload = {
             username: loggedInUsername,
-            players: playerNames
+            players: playerNames,
+            local_time: localTime
         };
 
         try {

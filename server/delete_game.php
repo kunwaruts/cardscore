@@ -4,7 +4,8 @@ header('Content-Type: application/json');
 $servername = "sql109.infinityfree.com";
 $dbUser = "if0_40166914";
 $dbPassword = "Cardgame0112";
-$centralDB = "if0_40166914_Users";
+$centralDB = "if0_40166914_users";
+$scoresDB = "if0_40166914_scores";
 
 $data = json_decode(file_get_contents('php://input'), true);
 
@@ -19,35 +20,27 @@ if (
 }
 
 $username = strtolower($data['username']);
-$gameId = $data['game_id'];
+$gameId = preg_replace('/[^a-zA-Z0-9_]/', '_', $data['game_id']); // sanitize for table name
 
 try {
     $pdo = new PDO("mysql:host=$servername", $dbUser, $dbPassword, [
         PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
     ]);
 
-    // Remove from status table
-    $pdo->exec("CREATE DATABASE IF NOT EXISTS `$centralDB`");
+    // 1. Remove from game_status
     $pdo->exec("USE `$centralDB`");
     $delStatus = $pdo->prepare("DELETE FROM game_status WHERE LOWER(username) = :username AND game_id = :game_id");
     $delStatus->execute([':username' => $username, ':game_id' => $gameId]);
 
-    // Get proper user DB (case preserved)
-    $checkUser = $pdo->prepare("SELECT username FROM user WHERE LOWER(username) = :username LIMIT 1");
-    $checkUser->execute([':username' => $username]);
-    $userRow = $checkUser->fetch(PDO::FETCH_ASSOC);
-    if (!$userRow) {
-        echo json_encode(['error' => 'User database not found']);
-        exit;
-    }
-    $userDb = preg_replace('/[^a-zA-Z0-9_]/', '_', $userRow['username']);
+    // 2. Remove from game_registry (metadata)
+    $delRegistry = $pdo->prepare("DELETE FROM game_registry WHERE username = :username AND game_id = :game_id");
+    $delRegistry->execute([':username' => $username, ':game_id' => $gameId]);
 
-    // Drop game table (disconnects from status)
-    $pdo->exec("CREATE DATABASE IF NOT EXISTS `$userDb`");
-    $pdo->exec("USE `$userDb`");
+    // 3. Drop game table from shared scores DB
+    $pdo->exec("USE `$scoresDB`");
     $pdo->exec("DROP TABLE IF EXISTS `$gameId`");
 
-    // Remove JSON save file (if any)
+    // 4. Delete JSON save file
     $saveFile = __DIR__ . "/gamesaves/game_$gameId.json";
     if (file_exists($saveFile)) {
         unlink($saveFile);

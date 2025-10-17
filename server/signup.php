@@ -5,7 +5,7 @@ header('Content-Type: application/json');
 $servername = "sql109.infinityfree.com";
 $dbUser = "if0_40166914";
 $dbPassword = "Cardgame0112";
-$centralDB = "if0_40166914_Users";
+$centralDB = "if0_40166914_users";
 
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -32,7 +32,6 @@ try {
     ]);
 
     // 1. Setup central Users database and user table
-    $pdo->exec("CREATE DATABASE IF NOT EXISTS $centralDB");
     $pdo->exec("USE $centralDB");
 
     $createUserTable = "
@@ -69,15 +68,15 @@ try {
         exit;
     }
 
-    // 4. Check if user-specific database exists
-    $dbExistsStmt = $pdo->prepare("SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = :dbname");
-    $dbExistsStmt->bindParam(':dbname', $dbNameUser);
-    $dbExistsStmt->execute();
+    // 4. Check if user-specific database exists (REMOVED FOR INFINITY FREE)
+    // $dbExistsStmt = $pdo->prepare("SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = :dbname");
+    // $dbExistsStmt->bindParam(':dbname', $dbNameUser);
+    // $dbExistsStmt->execute();
 
-    if ($dbExistsStmt->rowCount() === 0) {
-        // Database does not exist, create it
-        $pdo->exec("CREATE DATABASE `$dbNameUser`");
-    }
+    // if ($dbExistsStmt->rowCount() === 0) {
+    //     // Database does not exist, create it
+    //     $pdo->exec("CREATE DATABASE `$dbNameUser`");
+    // }
 
     // 5. Optionally, initialize user DB's tables here, example:
     //$pdo->exec("USE `$dbNameUser`");

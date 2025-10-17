@@ -4,7 +4,8 @@ header('Content-Type: application/json');
 $servername = "sql109.infinityfree.com";
 $dbUser = "if0_40166914";
 $dbPassword = "Cardgame0112";
-$dbName = "Users";
+$dbName = "if0_40166914_users";
+$scoresDB = "if0_40166914_scores";
 
 $data = json_decode(file_get_contents('php://input'), true);
 
@@ -19,7 +20,7 @@ $round = intval($data['round']);
 $scores = $data['scores'];
 
 // Sanitize username for DB name
-$userDbName = preg_replace('/[^a-zA-Z0-9_]/', '_', $username);
+//$userDbName = preg_replace('/[^a-zA-Z0-9_]/', '_', $username);
 
 // Sanitize gameId as table name
 $gameTableName = preg_replace('/[^a-zA-Z0-9_]/', '_', $gameId);
@@ -29,8 +30,9 @@ try {
         PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
     ]);
 
-    // Use user DB
-    $pdo->exec("USE `$userDbName`");
+    // Use user DB (FOr now use the socre DB)
+    //$pdo->exec("USE `$userDbName`");
+    $pdo->exec("USE `$scoresDB`");
 
     // Check if round row exists (by round number)
     $stmtCheck = $pdo->prepare("SELECT round FROM `$gameTableName` WHERE round = :round");

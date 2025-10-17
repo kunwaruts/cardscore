@@ -4,7 +4,7 @@ header('Content-Type: application/json');
 $servername = "sql109.infinityfree.com";
 $dbUser = "if0_40166914";
 $dbPassword = "Cardgame0112";
-$centralDB = "if0_40166914_Users";
+$centralDB = "if0_40166914_users";
 
 $data = json_decode(file_get_contents('php://input'), true);
 
@@ -20,7 +20,7 @@ try {
         PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
     ]);
 
-    $pdo->exec("CREATE DATABASE IF NOT EXISTS `$centralDB`");
+    //$pdo->exec("CREATE DATABASE IF NOT EXISTS `$centralDB`");
     $pdo->exec("USE `$centralDB`");
 
     $stmt = $pdo->prepare("SELECT game_id FROM game_status WHERE LOWER(username) = :username AND game_in_progress = 'yes' LIMIT 1");

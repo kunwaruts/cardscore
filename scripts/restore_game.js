@@ -1,4 +1,4 @@
-import { showConfirmationModal } from "./modalhandler";
+import { showConfirmationModal } from "./modalhandler.js";
 document.addEventListener('DOMContentLoaded', () => {
   let currentGameId = null;
   let currentUsername = null;
